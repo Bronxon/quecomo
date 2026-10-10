@@ -6,7 +6,7 @@
 
 | Capa | Responsabilidad | Paquete |
 |---|---|---|
-| **Presentación** | Interfaz web (Gradio). No contiene reglas del dominio. | `quecomo.presentacion` |
+| **Presentación** | Interfaz web (Gradio), identidad visual (`tema.py`) y redacción de mensajes. No contiene reglas del dominio. | `quecomo.presentacion` |
 | **Aplicación / Control** | Controladores y servicios que coordinan cada caso de uso y aplican la autorización por rol. | `quecomo.aplicacion` |
 | **Dominio** | Entidades, estados, reglas de negocio y contratos de repositorio. | `quecomo.dominio` |
 | **Infraestructura** | Persistencia (en memoria en el MVP) y datos de demostración. | `quecomo.infraestructura` |
@@ -90,6 +90,9 @@ grep -rnE --include="*.py" "^(import gradio|from \.\.(infraestructura|presentaci
 | ADR-05 | **Promedio ponderado** para ordenar por ranking | Promedio simple | Evitar que 1 evaluación de 5★ supere a muchas de 4.8★. El promedio mostrado sigue siendo el simple |
 | ADR-06 | `Vista` separada de `interfaz.py` | Lógica dentro de los *callbacks* | Probar la presentación sin servidor web |
 | ADR-07 | Solo el locatario dueño confirma/completa transacciones | Cliente o administrador | Requisito de Seguridad y CA-08; ver riesgo asociado en [11](11_validacion_y_modelo_de_negocio.md) |
+| ADR-08 | Identidad visual en `presentacion/tema.py` (paleta naranja–azul, Manrope, modo oscuro) | Tema predeterminado de Gradio | Separar estilo de estructura; un solo lugar para ajustar colores |
+| ADR-09 | La interfaz dice «consumo»; el dominio, «transacción». `Vista` redacta los rechazos a partir de `MotivoRechazo` | Mostrar los mensajes del dominio tal cual | Lenguaje claro para usuarios sin cambiar el modelo ni la documentación técnica |
+| ADR-10 | Sin pestaña de transacciones: el registro de consumo vive en «Evaluar» | Pestaña propia | Interfaz más simple; el consumo solo existe para poder evaluar |
 
 ## Siguiente paso de arquitectura: persistencia
 

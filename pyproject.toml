@@ -1,6 +1,6 @@
 [project]
 name = "quecomo"
-version = "0.2.0"
+version = "0.3.0"
 description = "¿Qué Como? — plataforma para consultar, comparar y evaluar restaurantes con evaluaciones respaldadas por transacciones."
 readme = "README.md"
 requires-python = ">=3.10"

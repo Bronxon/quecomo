@@ -2,6 +2,21 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado [SemVer](https://semver.org/lang/es/).
 
+## [0.3.0] — 2026-10-10
+
+### Eliminado
+- Pestaña **«Mis transacciones»**. Ninguna pestaña se llama ya «Transacciones»; en el panel del locatario la sub-pestaña ahora es «Confirmar consumos».
+
+### Cambiado
+- El registro de consumo (HU-06) pasa a una sección plegable **«Registrar un consumo nuevo»** dentro de **Evaluar**.
+- Nueva identidad visual «atardecer en el desierto»: paleta naranja–azul, tipografía Manrope, encabezado con degradado, pestañas sin emojis con subrayado naranja y modo oscuro. Todo en `presentacion/tema.py`.
+- Lenguaje de la interfaz: «consumo» en lugar de «transacción»; los motivos de rechazo se redactan en la vista a partir de `MotivoRechazo`.
+- Botones: «Publicar evaluación», «Registrar consumo», «Cancelar consumo».
+- Capturas de pantalla actualizadas.
+
+### Agregado
+- 2 pruebas de presentación (116 en total).
+
 ## [0.2.0] — 2026-10-10
 
 ### Eliminado

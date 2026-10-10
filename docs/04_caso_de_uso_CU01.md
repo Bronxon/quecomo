@@ -14,7 +14,7 @@
 
 | Paso | Interacción | Código |
 |---|---|---|
-| 1 | El usuario selecciona la transacción/restaurante a evaluar | Pestaña ⭐ Evaluar · `Vista.opciones_para_evaluar` |
+| 1 | El usuario selecciona la transacción («consumo» en la interfaz) a evaluar | Pestaña Evaluar · `Vista.opciones_para_evaluar` |
 | 2 | El sistema identifica al usuario y consulta sus transacciones | `ControladorEvaluacion._usuario_habilitado` · `IRepositorioTransacciones` |
 | 3 | El sistema obtiene la transacción correspondiente | `ControladorEvaluacion._obtener_transaccion` |
 | 4 | El sistema solicita a la transacción determinar si puede evaluarse | `transaccion.verificar_evaluable_por(usuario.id)` |
@@ -25,7 +25,7 @@
 | 9 | El sistema registra la evaluación | `RepositorioEvaluaciones.guardar(evaluacion)` |
 | 10 | El sistema la relaciona con usuario, restaurante y transacción | `transaccion.vincular_evaluacion(evaluacion.id)` |
 | 11 | El sistema actualiza la información del ranking | `ServicioRanking.calcular` (se recalcula al consultar) |
-| 12 | El sistema confirma el registro | Mensaje «✅ Evaluación #N registrada…» |
+| 12 | El sistema confirma el registro | Mensaje «✅ Evaluación publicada… vinculada a tu consumo #N» |
 
 > **Importante:** en el paso 9 se **repiten** todas las validaciones de los pasos 2 a 5. La interfaz nunca se considera fuente confiable.
 

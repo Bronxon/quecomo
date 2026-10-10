@@ -46,14 +46,15 @@ Todas usan un **reloj fijo** (sábado 10/10/2026, 13:00) definido en `tests/conf
 | RN-05 | `test_cancelada_no_habilita`, `test_ca04_rn05_transaccion_cancelada_no_habilita` |
 | RN-06 | `test_rn06_una_sola_evaluacion_por_transaccion`, `test_concurrencia_no_duplica_evaluaciones`, `test_repositorio_rechaza_duplicado_como_restriccion_unica` |
 | RN-07 | `test_rn07_no_hay_pagos_en_linea`, `test_rn07_interfaz_sin_pagos_en_linea`, `test_validaciones_de_registro` |
+| — | `test_la_interfaz_no_tiene_pestana_de_transacciones`, `test_motivos_de_rechazo_en_lenguaje_de_interfaz` (presentación) |
 
 ## Pruebas manuales sugeridas (exploratorias)
 
 | # | Pasos | Resultado esperado |
 |---|---|---|
-| M-01 | Ana → ⭐ Evaluar → transacción PENDIENTE → «Evaluar restaurante» | ⛔ Mensaje indicando que debe estar COMPLETADA |
-| M-02 | Ana → 🏪 Locatario → «Completar» cualquier transacción | ⛔ «Solo el locatario de … puede…» |
+| M-01 | Ana → Evaluar → consumo PENDIENTE → «Evaluar restaurante» | ⛔ «Tu consumo #N está PENDIENTE…» |
+| M-02 | Ana → Locatario → «Completar» cualquier consumo | ⛔ «Solo el locatario de … puede…» |
 | M-03 | Gabriela (admin) → oculta una evaluación sin motivo | ⛔ «El campo motivo de moderación es obligatorio» |
 | M-04 | Héctor → registra restaurante con horario «8am» | ⛔ Formato HH:MM |
 | M-05 | Buscar con horario «20:00» (de martes a domingo) | Aparece *Tacos La Lumbre* (18:00–02:00) y no *Antojitos Doña Chayo* (08:00–16:00) |
-| M-06 | Admin suspende un restaurante | Desaparece de búsqueda, ficha, comparar y registro de transacciones |
+| M-06 | Admin suspende un restaurante | Desaparece de búsqueda, ficha, comparar y registro de consumos |

@@ -46,7 +46,7 @@
 |---|---|---|
 | RNF-01 | La interfaz debe estar completamente en español. | ✅ |
 | RNF-02 | Los mensajes de rechazo deben explicar el motivo con lenguaje claro. | ✅ |
-| RNF-03 | Las reglas de negocio deben tener pruebas automatizadas. | ✅ 114 pruebas, CI en GitHub Actions |
+| RNF-03 | Las reglas de negocio deben tener pruebas automatizadas. | ✅ 116 pruebas, CI en GitHub Actions |
 | RNF-04 | Publicar solo el nombre y la inicial del apellido de quien evalúa (minimización de datos). | ✅ `Usuario.nombre_publico()` |
 | RNF-05 | No mostrar públicamente el importe de las transacciones. | ✅ |
 | RNF-06 | Comentarios de 10 a 500 caracteres; calificación entera de 1 a 5. | ✅ `Evaluacion.validar()` |

@@ -6,13 +6,13 @@
 
 | ID | Historia | Prioridad | Estado en el MVP | Dónde |
 |---|---|---|---|---|
-| HU-01 | Como usuario, quiero **buscar** restaurantes para encontrar alternativas disponibles. | Alta | ✅ Implementada | `ServicioBusqueda.buscar` · pestaña 🔎 |
+| HU-01 | Como usuario, quiero **buscar** restaurantes para encontrar alternativas disponibles. | Alta | ✅ Implementada | `ServicioBusqueda.buscar` · pestaña Buscar |
 | HU-02 | Como usuario, quiero **filtrar** por precio, distancia, horario y forma de pago para reducir las opciones. | Alta | ✅ Implementada (además: tipo de comida, calificación mínima, promociones) | `CriteriosBusqueda` |
-| HU-03 | Como usuario, quiero **consultar la información** de un restaurante antes de elegir. | Alta | ✅ Implementada | `ServicioBusqueda.detalle` · pestaña 📋 |
-| HU-04 | Como usuario, quiero **comparar** restaurantes para apoyar mi decisión. | Media | ✅ Implementada (2 a 3 restaurantes) | `ServicioBusqueda.comparar` · pestaña ⚖️ |
+| HU-03 | Como usuario, quiero **consultar la información** de un restaurante antes de elegir. | Alta | ✅ Implementada | `ServicioBusqueda.detalle` · pestaña Ficha |
+| HU-04 | Como usuario, quiero **comparar** restaurantes para apoyar mi decisión. | Media | ✅ Implementada (2 a 3 restaurantes) | `ServicioBusqueda.comparar` · pestaña Comparar |
 | HU-05 | Como usuario, quiero consultar **ranking y evaluaciones**. | Media | ✅ Implementada | `ServicioRanking` |
-| HU-06 | Como usuario, quiero **registrar una transacción** para dejar evidencia de la relación comercial. | Alta | ✅ Implementada | `ServicioTransacciones.registrar` · pestaña 🧾 |
-| HU-07 | Como usuario, quiero **evaluar** un restaurante después de una transacción válida. | Alta | ✅ Implementada | `ControladorEvaluacion.registrar_evaluacion` · pestaña ⭐ |
+| HU-06 | Como usuario, quiero **registrar una transacción** para dejar evidencia de la relación comercial. | Alta | ✅ Implementada | `ServicioTransacciones.registrar` · Evaluar › «Registrar un consumo nuevo» (en la interfaz se llama *consumo*) |
+| HU-07 | Como usuario, quiero **evaluar** un restaurante después de una transacción válida. | Alta | ✅ Implementada | `ControladorEvaluacion.registrar_evaluacion` · pestaña Evaluar |
 | HU-08 | Como sistema, quiero **validar que exista una transacción** antes de permitir una evaluación. | Alta | ✅ Implementada | `Transaccion.puede_evaluarse` |
 | HU-09 | Como locatario, quiero **registrar mi restaurante**. | Media | ✅ Implementada | `ServicioRestaurantes.registrar` |
 | HU-10 | Como locatario, quiero **administrar la información** de mi restaurante. | Media | ✅ Implementada (datos, menú, promociones) | `ServicioRestaurantes.actualizar` |

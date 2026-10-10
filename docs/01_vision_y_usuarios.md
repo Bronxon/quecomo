@@ -22,7 +22,7 @@ Una plataforma digital de **conexión, consulta, comparación y evaluación** en
 
 | Actor | Necesidad principal | Interacción con ¿Qué Como? | En el MVP |
 |---|---|---|---|
-| **Cliente / Usuario** | Encontrar y comparar restaurantes | Busca, filtra, consulta, compara, registra transacciones y evalúa | Pestañas Buscar, Ficha, Comparar, Mis transacciones, Evaluar |
+| **Cliente / Usuario** | Encontrar y comparar restaurantes | Busca, filtra, consulta, compara, registra consumos y evalúa | Pestañas Buscar, Ficha, Comparar y Evaluar (incluye «Registrar un consumo nuevo») |
 | **Locatario / Restaurante** | Presentar información confiable y recibir retroalimentación real | Administra información, menú, horarios, pagos, promociones; consulta evaluaciones | Pestaña Locatario |
 | **Administrador** | Mantener la integridad de la plataforma | Moderación y control de restaurantes | Pestaña Administración |
 
@@ -39,7 +39,7 @@ Una plataforma digital de **conexión, consulta, comparación y evaluación** en
 
 Un usuario abre ¿Qué Como? porque quiere comer fuera con restricciones de presupuesto, distancia y horario. Selecciona tipo de comida, rango de precio, distancia máxima y horario. El sistema presenta restaurantes compatibles. El usuario consulta varios perfiles y compara menú, precios, ubicación, formas de pago, promociones, horario y ranking. Elige un restaurante y consume. La transacción queda registrada. Cuando la transacción se completa, ¿Qué Como? le permite evaluar y relaciona la evaluación con la transacción que demuestra la interacción comercial.
 
-**Cómo se recorre en el MVP:** 🔎 Buscar → 📋 Ficha → ⚖️ Comparar → 🧾 Mis transacciones → (Locatario confirma y completa) → ⭐ Evaluar.
+**Cómo se recorre en el MVP:** Buscar → Ficha → Comparar → Evaluar › Registrar un consumo nuevo → (Locatario › Confirmar consumos) → Evaluar.
 
 ## 7. Núcleo funcional
 

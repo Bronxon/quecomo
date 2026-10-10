@@ -11,4 +11,4 @@ La regla central del producto: una evaluación solo es válida si está
 respaldada por una transacción COMPLETADA que aún no haya sido evaluada.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"

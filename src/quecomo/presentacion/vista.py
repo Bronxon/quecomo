@@ -24,7 +24,7 @@ from ..aplicacion.servicio_restaurantes import DatosRestaurante
 from ..configuracion import Aplicacion
 from ..dominio.entidades import DIAS_SEMANA, Restaurante, Transaccion
 from ..dominio.estados import EstadoRestaurante, EstadoTransaccion, Rol
-from ..dominio.excepciones import DatosInvalidos, ErrorDominio
+from ..dominio.excepciones import DatosInvalidos, ErrorDominio, EvaluacionNoPermitida, MotivoRechazo
 
 HORARIO_CUALQUIERA = "Cualquier horario"
 HORARIO_AHORA = "Abierto ahora"
@@ -120,11 +120,11 @@ class Vista:
         if usuario is None:
             return "Selecciona un usuario de demostración."
         consejos = {
-            Rol.CLIENTE: "Busca, compara, registra transacciones y evalúa en **⭐ Evaluar**.",
-            Rol.LOCATARIO: "Gestiona tus restaurantes y confirma transacciones en **🏪 Locatario**.",
-            Rol.ADMINISTRADOR: "Modera evaluaciones y restaurantes en **🛡️ Administración**.",
+            Rol.CLIENTE: "Busca y compara restaurantes; registra y evalúa tus consumos en **Evaluar**.",
+            Rol.LOCATARIO: "Gestiona tus restaurantes y confirma consumos en **Locatario**.",
+            Rol.ADMINISTRADOR: "Modera evaluaciones y restaurantes en **Administración**.",
         }
-        return f"Sesión de **{usuario.nombre}** ({usuario.rol.etiqueta}). {consejos[usuario.rol]}"
+        return f"Hola, **{usuario.nombre.split()[0]}** ({usuario.rol.etiqueta.lower()}). {consejos[usuario.rol]}"
 
     # ------------------------------------------------------------------ #
     # Catálogos
@@ -143,7 +143,7 @@ class Vista:
         return [(r.nombre, r.id) for r in self.app.busqueda.restaurantes_disponibles()]
 
     # ------------------------------------------------------------------ #
-    # 🔎 Buscar (HU-01, HU-02, HU-05)
+    # Buscar (HU-01, HU-02, HU-05)
     # ------------------------------------------------------------------ #
 
     def _momento(self, horario: str | None) -> datetime | None:
@@ -209,7 +209,7 @@ class Vista:
         ]
 
     # ------------------------------------------------------------------ #
-    # 📋 Ficha del restaurante (HU-03, HU-05)
+    # Ficha del restaurante (HU-03, HU-05)
     # ------------------------------------------------------------------ #
 
     @capturar_errores(pd.DataFrame())
@@ -247,14 +247,14 @@ class Vista:
             self.app.evaluaciones.obtener_por_restaurante(r.id), key=lambda e: e.fecha, reverse=True
         )
         if not evaluaciones:
-            lineas.append("Aún no hay evaluaciones. Solo quien completa una transacción puede evaluar.")
+            lineas.append("Aún no hay evaluaciones. Solo quien completa un consumo aquí puede evaluar.")
         for e in evaluaciones:
             autor = self.app.usuarios.obtener(e.usuario_id)
             nombre = autor.nombre_publico() if autor else "Usuario"
             lineas.append(
                 f"- {estrellas(e.calificacion)} **{nombre}** · {e.fecha:%d/%m/%Y}  \n"
                 f"  {e.comentario}  \n"
-                f"  <small>✔ Respaldada por la transacción #{e.transaccion_id}</small>"
+                f"  <small>✔ Respaldada por el consumo #{e.transaccion_id}</small>"
             )
         menu = pd.DataFrame(
             [[p.nombre, p.descripcion, dinero(p.precio)] for p in r.productos()],
@@ -263,7 +263,7 @@ class Vista:
         return "\n".join(lineas), menu
 
     # ------------------------------------------------------------------ #
-    # ⚖️ Comparar (HU-04)
+    # Comparar (HU-04)
     # ------------------------------------------------------------------ #
 
     @capturar_errores(pd.DataFrame())
@@ -290,7 +290,7 @@ class Vista:
         return ok(f"Comparando {len(resultados)} restaurantes. Mejor calificado: **{mejor.restaurante.nombre}**."), tabla
 
     # ------------------------------------------------------------------ #
-    # 🧾 Mis transacciones (HU-06)
+    # Registro de consumos (HU-06) — dentro de la pestaña «Evaluar»
     # ------------------------------------------------------------------ #
 
     def _nombre_restaurante(self, restaurante_id: int) -> str:
@@ -331,18 +331,18 @@ class Vista:
     def registrar_transaccion(self, usuario_id: Any, restaurante_id: Any, importe: Any) -> str:
         t = self.app.servicio_transacciones.registrar(_id(usuario_id), _id(restaurante_id), importe)
         return ok(
-            f"Transacción #{t.id} registrada por {dinero(t.importe)} en "
-            f"«{self._nombre_restaurante(t.restaurante_id)}». Estado: **{t.estado.value}**. "
-            "El restaurante debe confirmarla y completarla para que puedas evaluar."
+            f"Consumo #{t.id} registrado por {dinero(t.importe)} en "
+            f"«{self._nombre_restaurante(t.restaurante_id)}». Queda **PENDIENTE** hasta que el "
+            "restaurante lo confirme y lo complete; entonces podrás evaluarlo."
         )
 
     @capturar_errores()
     def cancelar_transaccion(self, usuario_id: Any, transaccion_id: Any) -> str:
         t = self.app.servicio_transacciones.cancelar(_id(usuario_id), _id(transaccion_id), "Cancelada desde la app")
-        return ok(f"Transacción #{t.id} cancelada. Una transacción cancelada no habilita evaluaciones.")
+        return ok(f"Consumo #{t.id} cancelado. Un consumo cancelado no se puede evaluar.")
 
     # ------------------------------------------------------------------ #
-    # ⭐ Evaluar (CU-01: HU-07 + HU-08)
+    # Evaluar (CU-01: HU-07 + HU-08)
     # ------------------------------------------------------------------ #
 
     def opciones_para_evaluar(self, usuario_id: Any) -> list[tuple[str, int]]:
@@ -356,7 +356,7 @@ class Vista:
             return []
         opciones = []
         for t in sorted(self.app.transacciones.listar_por_usuario(uid), key=lambda x: x.id, reverse=True):
-            marca = "✔ evaluable" if t.puede_evaluarse() else ("ya evaluada" if t.evaluacion_id else t.estado.value)
+            marca = "✔ listo para evaluar" if t.puede_evaluarse() else ("ya evaluado" if t.evaluacion_id else t.estado.value)
             opciones.append((f"#{t.id} · {self._nombre_restaurante(t.restaurante_id)} · {fecha_hora(t.fecha)} · {marca}", t.id))
         return opciones
 
@@ -372,14 +372,40 @@ class Vista:
         try:
             t = self.app.controlador_evaluacion.solicitar_evaluacion(_id(usuario_id), _id(transaccion_id))
         except ErrorDominio as error:
-            return aviso(str(error)), False
+            return aviso(self._mensaje_rechazo(error, transaccion_id)), False
         return (
             ok(
-                f"La transacción #{t.id} con «{self._nombre_restaurante(t.restaurante_id)}» está "
-                "COMPLETADA y no ha sido evaluada. Ya puedes registrar tu evaluación."
+                f"Tu consumo #{t.id} en «{self._nombre_restaurante(t.restaurante_id)}» está completado. "
+                "Califícalo y escribe tu comentario."
             ),
             True,
         )
+
+    def _mensaje_rechazo(self, error: ErrorDominio, transaccion_id: Any) -> str:
+        """Redacta el motivo de rechazo en el lenguaje de la interfaz («consumo»).
+
+        El dominio entrega un código (``MotivoRechazo``); la presentación decide
+        cómo decirlo a la persona usuaria.
+        """
+        if not isinstance(error, EvaluacionNoPermitida):
+            return str(error)
+        tid = _id(transaccion_id)
+        t = self.app.transacciones.obtener(tid) if tid is not None else None
+        mensajes = {
+            MotivoRechazo.SIN_TRANSACCION: "No hay un consumo que respalde la evaluación. Registra tu visita primero.",
+            MotivoRechazo.TRANSACCION_AJENA: "Solo quien hizo el consumo puede evaluarlo.",
+            MotivoRechazo.TRANSACCION_NO_COMPLETADA: (
+                f"Tu consumo #{tid} está {t.estado.value if t else 'sin completar'}. "
+                "Solo puedes evaluar consumos que el restaurante ya completó."
+            ),
+            MotivoRechazo.TRANSACCION_CANCELADA: f"Tu consumo #{tid} fue cancelado, así que no se puede evaluar.",
+            MotivoRechazo.TRANSACCION_YA_EVALUADA: (
+                f"Ya evaluaste el consumo #{tid}. Cada consumo admite una sola evaluación."
+            ),
+            MotivoRechazo.RESTAURANTE_NO_DISPONIBLE: "Este restaurante no está disponible por ahora; no admite evaluaciones.",
+            MotivoRechazo.USUARIO_NO_HABILITADO: "Inicia sesión con una cuenta activa para evaluar.",
+        }
+        return mensajes.get(error.motivo, str(error))
 
     def registrar_evaluacion(
         self, usuario_id: Any, transaccion_id: Any, calificacion: Any, comentario: str
@@ -390,19 +416,19 @@ class Vista:
                 _id(usuario_id), _id(transaccion_id), calificacion, comentario
             )
         except ErrorDominio as error:
-            return aviso(str(error)), True
+            return aviso(self._mensaje_rechazo(error, transaccion_id)), True
         ranking = self.app.ranking.calcular(e.restaurante_id)
         return (
             ok(
-                f"Evaluación #{e.id} registrada ({estrellas(e.calificacion)}) y vinculada a la "
-                f"transacción #{e.transaccion_id}. Nueva calificación de "
+                f"Evaluación publicada ({estrellas(e.calificacion)}) y vinculada a tu "
+                f"consumo #{e.transaccion_id}. Nueva calificación de "
                 f"«{self._nombre_restaurante(e.restaurante_id)}»: {ranking.texto()}."
             ),
             False,
         )
 
     # ------------------------------------------------------------------ #
-    # 🏪 Locatario (HU-09, HU-10, HU-11 + gestión de transacciones)
+    # Locatario (HU-09, HU-10, HU-11 + gestión de transacciones)
     # ------------------------------------------------------------------ #
 
     def opciones_mis_restaurantes(self, usuario_id: Any) -> list[tuple[str, int]]:
@@ -422,7 +448,7 @@ class Vista:
             for t in transacciones
             if not t.estado.es_final
         ]
-        mensaje = f"{len(abiertas)} transacción(es) por gestionar." if abiertas else "No hay transacciones pendientes."
+        mensaje = f"{len(abiertas)} consumo(s) por confirmar o completar." if abiertas else "No hay consumos pendientes."
         return mensaje, self._tabla_transacciones(transacciones, con_cliente=True), abiertas
 
     @capturar_errores()
@@ -435,7 +461,7 @@ class Vista:
         }
         t = operaciones[accion](_id(usuario_id), _id(transaccion_id))
         extra = " El cliente ya puede evaluar su experiencia." if t.estado is EstadoTransaccion.COMPLETADA else ""
-        return ok(f"Transacción #{t.id} → **{t.estado.value}**.{extra}")
+        return ok(f"Consumo #{t.id} → **{t.estado.value}**.{extra}")
 
     @capturar_errores(pd.DataFrame())
     def evaluaciones_recibidas(self, usuario_id: Any, restaurante_id: Any) -> tuple[str, pd.DataFrame]:
@@ -448,7 +474,7 @@ class Vista:
                  f"#{e.transaccion_id}", e.estado.value]
                 for e in evaluaciones
             ],
-            columns=["ID", "Fecha", "Calificación", "Comentario", "Transacción", "Estado"],
+            columns=["ID", "Fecha", "Calificación", "Comentario", "Consumo", "Estado"],
         )
         ranking = self.app.ranking.calcular(_id(restaurante_id))
         return f"Calificación actual: **{ranking.texto()}**", tabla
@@ -505,7 +531,7 @@ class Vista:
         return ok(f"Promoción «{p.descripcion}» publicada del {p.inicio:%d/%m} al {p.fin:%d/%m/%Y}.")
 
     # ------------------------------------------------------------------ #
-    # 🛡️ Administración
+    # Administración
     # ------------------------------------------------------------------ #
 
     @capturar_errores(pd.DataFrame(), pd.DataFrame(), [], [])
@@ -522,7 +548,7 @@ class Vista:
                  f"#{e.transaccion_id}", e.estado.value, e.motivo_moderacion]
                 for e in evaluaciones
             ],
-            columns=["ID", "Restaurante", "Calificación", "Comentario", "Transacción", "Estado", "Motivo"],
+            columns=["ID", "Restaurante", "Calificación", "Comentario", "Consumo", "Estado", "Motivo"],
         )
         opciones_r = [(f"{r.nombre} ({r.estado.value})", r.id) for r in restaurantes]
         opciones_e = [(f"#{e.id} · {self._nombre_restaurante(e.restaurante_id)} · {e.estado.value}", e.id) for e in evaluaciones]

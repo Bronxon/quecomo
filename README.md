@@ -37,13 +37,12 @@ Este repositorio contiene el **MVP académico** desarrollado en Python con [Grad
 
 | Pestaña | Qué permite | Historias |
 |---|---|---|
-| 🔎 **Buscar** | Buscar por texto (incluye platillos del menú) y filtrar por tipo de comida, precio, distancia, horario, forma de pago en el local, calificación mínima y promociones. Ordenar por ranking, cercanía, precio o antigüedad. | HU-01, HU-02, HU-05 |
-| 📋 **Ficha del restaurante** | Descripción, horario, ubicación, formas de pago en el local, antigüedad, menú, promociones vigentes, distribución de calificaciones y evaluaciones verificadas. | HU-03, HU-05 |
-| ⚖️ **Comparar** | Comparar de 2 a 3 restaurantes lado a lado en 11 criterios. | HU-04 |
-| 🧾 **Mis transacciones** | Registrar un consumo y seguir su estado; cancelar si aún no concluye. | HU-06 |
-| ⭐ **Evaluar** | Caso de uso **CU-01**: validar la transacción y registrar la evaluación. Muestra el motivo exacto cuando se rechaza. | HU-07, HU-08 |
-| 🏪 **Locatario** | Confirmar/completar transacciones, consultar evaluaciones recibidas, registrar y editar el restaurante, agregar productos y promociones. | HU-09, HU-10, HU-11 |
-| 🛡️ **Administración** | Suspender/activar restaurantes y moderar evaluaciones (con motivo obligatorio). | Rol Administrador |
+| **Buscar** | Buscar por texto (incluye platillos del menú) y filtrar por tipo de comida, precio, distancia, horario, forma de pago en el local, calificación mínima y promociones. Ordenar por ranking, cercanía, precio o antigüedad. | HU-01, HU-02, HU-05 |
+| **Ficha del restaurante** | Descripción, horario, ubicación, formas de pago en el local, antigüedad, menú, promociones vigentes, distribución de calificaciones y evaluaciones verificadas. | HU-03, HU-05 |
+| **Comparar** | Comparar de 2 a 3 restaurantes lado a lado en 11 criterios. | HU-04 |
+| **Evaluar** | Caso de uso **CU-01**: elegir uno de tus consumos, validarlo y publicar la evaluación; muestra el motivo exacto cuando se rechaza. Incluye la sección plegable **Registrar un consumo nuevo**. | HU-06, HU-07, HU-08 |
+| **Locatario** | Confirmar y completar consumos, consultar evaluaciones recibidas, registrar y editar el restaurante, agregar productos y promociones. | HU-09, HU-10, HU-11 |
+| **Administración** | Suspender/activar restaurantes y moderar evaluaciones (con motivo obligatorio). | Rol Administrador |
 
 ## La regla de confianza
 
@@ -105,10 +104,10 @@ Variables de entorno opcionales:
 
 La app incluye **datos ficticios** y un **inicio de sesión simulado** (selector «👤 Sesión de demostración»).
 
-1. Como **Ana López (Cliente)**, abre **⭐ Evaluar**: la transacción con *Tacos La Lumbre* ya es evaluable. Pulsa **Evaluar restaurante**, califica y comenta.
+1. Como **Ana López (Cliente)**, abre **Evaluar**: su consumo en *Tacos La Lumbre* ya está listo para evaluar. Pulsa **Evaluar restaurante**, califica, comenta y pulsa **Publicar evaluación**.
 2. Elige ahora una transacción **PENDIENTE**, **CANCELADA** o **ya evaluada**: el sistema la rechaza explicando por qué.
-3. En **🧾 Mis transacciones**, registra un consumo nuevo en *Mariscos El Faro Azul*.
-4. Cambia la sesión a **Héctor Salas (Locatario)**, ve a **🏪 Locatario**, selecciona la transacción, pulsa **Confirmar** y luego **Completar**.
+3. En **Evaluar → Registrar un consumo nuevo**, registra una visita a *Mariscos El Faro Azul*.
+4. Cambia la sesión a **Héctor Salas (Locatario)**, ve a **Locatario → Confirmar consumos**, selecciona el consumo, pulsa **Confirmar** y luego **Completar**.
 5. Vuelve a **Ana López**: la nueva transacción aparece como «✔ evaluable».
 
 | Usuario de demostración | Rol | Para probar |
@@ -124,6 +123,20 @@ La app incluye **datos ficticios** y un **inicio de sesión simulado** (selector
 | ![Evaluar](docs/img/evaluar.png) | ![Rechazo](docs/img/evaluar_rechazo.png) |
 | **Panel del locatario** | **Comparación** |
 | ![Locatario](docs/img/locatario.png) | ![Comparar](docs/img/comparar.png) |
+
+## Identidad visual
+
+La interfaz usa la paleta **«atardecer en el desierto»**: azul noche del cielo y naranja del horizonte. El degradado solo aparece en el encabezado; el resto es sobrio para que destaque la información. Incluye modo oscuro automático. Los tokens están en [`src/quecomo/presentacion/tema.py`](src/quecomo/presentacion/tema.py).
+
+| Token | Color | Uso |
+|---|---|---|
+| Noche | `#12203A` | Encabezado, títulos |
+| Cobalto | `#2456A6` | Acciones secundarias, foco |
+| Cielo | `#E8EEF8` | Superficies suaves, cabeceras de tabla |
+| Atardecer | `#F27A1A` | Acción principal, pestaña activa |
+| Brasa | `#C4580A` | Texto naranja sobre fondo claro |
+
+En la interfaz se usa la palabra **«consumo»**; en el dominio y la documentación técnica, **«transacción»**. Son el mismo concepto.
 
 ## Arquitectura
 
@@ -153,7 +166,7 @@ que-como/
 │   ├── infraestructura/           # Repositorios en memoria y datos de demostración
 │   ├── presentacion/              # Interfaz Gradio (interfaz.py) y adaptador (vista.py)
 │   └── configuracion.py           # Raíz de composición: arma la aplicación
-├── tests/                         # 114 pruebas (unitarias, integración y presentación)
+├── tests/                         # 116 pruebas (unitarias, integración y presentación)
 ├── docs/                          # Documentación de ingeniería, legal y de negocio
 │   └── referencias/               # Documento Fundamental original (PDF)
 ├── .github/workflows/pruebas.yml  # Integración continua

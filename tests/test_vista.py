@@ -30,7 +30,7 @@ def test_buscar(vista):
 
 def test_ficha_muestra_evaluaciones_con_trazabilidad(vista):
     texto, menu = vista.ficha(1, "Centro")
-    assert "Respaldada por la transacción" in texto
+    assert "Respaldada por el consumo" in texto
     assert "Ana L." in texto  # nombre público, no el nombre completo
     assert "Ana López" not in texto
     assert len(menu) == 4
@@ -49,7 +49,7 @@ def test_flujo_cu01_desde_la_vista(vista):
     mensaje, visible = vista.registrar_evaluacion(1, 2, 4, "Muy buenos tacos al carbón.")
     assert mensaje.startswith("✅") and not visible
     mensaje, mostrar = vista.solicitar_evaluacion(1, 2)
-    assert not mostrar and "ya respalda" in mensaje
+    assert not mostrar and "Ya evaluaste" in mensaje
 
 
 def test_rechazo_de_transaccion_pendiente(vista):
@@ -93,3 +93,19 @@ def test_rn07_interfaz_sin_pagos_en_linea(vista):
     campos[9] = ["Efectivo", "Transferencia"]
     mensaje = vista.guardar_restaurante(4, 1, *campos)
     assert mensaje.startswith("⛔") and "pagos en línea" in mensaje
+
+
+def test_la_interfaz_no_tiene_pestana_de_transacciones(app_demo):
+    """Observación de revisión: el registro de consumo vive dentro de «Evaluar»."""
+    demo = construir_interfaz(app_demo)
+    pestanas = [b.label for b in demo.blocks.values() if isinstance(b, gr.Tab)]
+    assert not any("transaccion" in (p or "").lower() for p in pestanas)
+    assert "Evaluar" in pestanas
+
+
+def test_motivos_de_rechazo_en_lenguaje_de_interfaz(vista):
+    cancelada = next(t for t in vista.app.transacciones.listar_por_usuario(1) if t.estado.value == "CANCELADA")
+    mensaje, mostrar = vista.solicitar_evaluacion(1, cancelada.id)
+    assert not mostrar and "fue cancelado" in mensaje
+    mensaje, _ = vista.solicitar_evaluacion(1, None)
+    assert "Registra tu visita" in mensaje

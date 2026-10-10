@@ -14,6 +14,7 @@ import gradio as gr
 from ..aplicacion.servicio_busqueda import MAXIMO_COMPARACION, Orden
 from ..configuracion import Aplicacion, crear_aplicacion
 from ..dominio.entidades import DIAS_SEMANA, FORMAS_PAGO_PERMITIDAS, LONGITUD_MAXIMA_COMENTARIO
+from .tema import CSS, ENCABEZADO, TEMA
 from .vista import (
     HORARIO_CUALQUIERA,
     OPCIONES_HORARIO,
@@ -23,57 +24,36 @@ from .vista import (
     fecha_hoy_mas,
 )
 
-TEMA = gr.themes.Soft(
-    primary_hue="orange",
-    secondary_hue="amber",
-    neutral_hue="stone",
-    font=[gr.themes.GoogleFont("Nunito"), "ui-sans-serif", "system-ui", "sans-serif"],
-)
-
-CSS = """
-#encabezado { text-align: center; padding: 18px 8px 4px; }
-#encabezado h1 { font-size: 2.4rem; margin: 0; letter-spacing: -0.5px; }
-#encabezado p { margin: 6px 0 0; opacity: .8; }
-.mensaje p { font-size: 1rem; }
-footer { display: none !important; }
-"""
-
-ENCABEZADO = """
-<div id="encabezado">
-  <h1>🍽️ ¿Qué Como?</h1>
-  <p>Convertir la búsqueda de un restaurante en una decisión informada.</p>
-  <p><small>Prototipo académico (MVP) · Todos los datos son ficticios</small></p>
-</div>
-"""
-
 ACERCA_DE = """
 ## ¿Cómo funciona la regla de confianza?
 
-En ¿Qué Como? **una evaluación solo existe si la respalda una transacción real**:
+En ¿Qué Como? **una evaluación solo existe si la respalda un consumo real** (en la
+documentación técnica, una *transacción*):
 
-1. El **cliente** registra una transacción con un restaurante → queda **PENDIENTE**.
-2. El **locatario** la **confirma** y, al concluir el servicio, la **completa**.
-3. Solo entonces el cliente puede **evaluar**, y **una sola vez** por transacción.
+1. El **cliente** registra su consumo en un restaurante → queda **PENDIENTE**.
+2. El **locatario** lo **confirma** y, al concluir el servicio, lo **completa**.
+3. Solo entonces el cliente puede **evaluar**, y **una sola vez** por consumo.
 
 ```
 INICIADA → PENDIENTE → CONFIRMADA → COMPLETADA ──► habilita 1 evaluación
                └────────────┴──► CANCELADA (no habilita evaluación)
 ```
 
-El cliente **no puede** completar su propia transacción y el administrador
-tampoco puede fabricarla: así nadie se habilita una evaluación a sí mismo.
+El cliente **no puede** completar su propio consumo y el administrador
+tampoco puede fabricarlo: así nadie se habilita una evaluación a sí mismo.
 
 ### Para probar en 1 minuto
-1. Con **Ana López** entra a **⭐ Evaluar**: la transacción con *Tacos La Lumbre* ya es evaluable.
-2. Elige una transacción **PENDIENTE** o **CANCELADA** y observa el rechazo con su motivo.
-3. Registra una transacción nueva en **🧾 Mis transacciones**, cambia la sesión a
-   **Héctor Salas (Locatario)**, confírmala y complétala en **🏪 Locatario**, y vuelve a Ana para evaluarla.
+1. Con **Ana López** entra a **Evaluar**: su consumo en *Tacos La Lumbre* ya se puede evaluar.
+2. Elige un consumo **PENDIENTE** o **CANCELADO** y observa el rechazo con su motivo.
+3. En **Evaluar → Registrar un consumo nuevo**, registra una visita; cambia la sesión a
+   **Héctor Salas (Locatario)**, confírmala y complétala en **Locatario → Confirmar consumos**,
+   y vuelve a Ana para evaluarla.
 
 ### Limitaciones del prototipo
 - El inicio de sesión es **simulado** (se elige un usuario de demostración).
 - Los datos viven **en memoria**: se reinician al reiniciar la aplicación.
-- ¿Qué Como? **no ofrece pagos en línea**: el pago se hace en el restaurante y la «transacción» es
-  solo el registro del consumo. Ver `docs/` en el repositorio.
+- ¿Qué Como? **no ofrece pagos en línea**: el pago se hace en el restaurante; aquí solo se
+  registra el consumo. Ver `docs/` en el repositorio.
 """
 
 
@@ -85,19 +65,19 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
 
     with gr.Blocks(title="¿Qué Como?", analytics_enabled=False) as demo:
         gr.HTML(ENCABEZADO)
-        with gr.Row(equal_height=True):
+        with gr.Row(equal_height=True, elem_id="sesion"):
             usuario = gr.Dropdown(
                 vista.opciones_usuarios(),
                 value=usuario_inicial,
-                label="👤 Sesión de demostración",
+                label="Sesión de demostración",
                 info="Inicio de sesión simulado: elige con qué usuario probar la app.",
                 scale=2,
             )
-            bienvenida = gr.Markdown(vista.bienvenida(usuario_inicial))
+            bienvenida = gr.Markdown(vista.bienvenida(usuario_inicial), elem_id="bienvenida")
 
         with gr.Tabs():
             # ------------------------------------------------------------ #
-            with gr.Tab("🔎 Buscar"):
+            with gr.Tab("Buscar"):
                 with gr.Row():
                     with gr.Column(scale=1, min_width=270):
                         b_texto = gr.Textbox(label="¿Qué se te antoja?", placeholder="tacos, sushi, café…")
@@ -115,15 +95,16 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
                         b_resumen = gr.Markdown(elem_classes="mensaje")
                         b_tabla = gr.Dataframe(interactive=False, wrap=True, label="Resultados")
                         gr.Markdown(
-                            "<small>La calificación solo incluye evaluaciones respaldadas por una "
-                            "transacción completada. El orden por ranking usa un promedio ponderado "
-                            "para no favorecer a quien tiene muy pocas evaluaciones.</small>"
+                            "La calificación solo incluye evaluaciones respaldadas por un consumo "
+                            "completado. El orden por ranking usa un promedio ponderado para no "
+                            "favorecer a quien tiene muy pocas evaluaciones.",
+                            elem_classes="nota",
                         )
                 filtros = [b_texto, b_categoria, b_precio, b_punto, b_distancia, b_horario,
                            b_pago, b_calificacion, b_promo, b_orden]
 
             # ------------------------------------------------------------ #
-            with gr.Tab("📋 Ficha del restaurante"):
+            with gr.Tab("Ficha del restaurante"):
                 with gr.Row():
                     f_restaurante = gr.Dropdown(vista.opciones_restaurantes(), label="Restaurante", scale=2)
                     f_punto = gr.Dropdown(vista.opciones_puntos(), value="Centro", label="Punto de referencia")
@@ -131,7 +112,7 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
                 f_menu = gr.Dataframe(interactive=False, wrap=True, label="Menú")
 
             # ------------------------------------------------------------ #
-            with gr.Tab("⚖️ Comparar"):
+            with gr.Tab("Comparar"):
                 with gr.Row():
                     c_restaurantes = gr.Dropdown(
                         vista.opciones_restaurantes(),
@@ -146,33 +127,15 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
                 c_tabla = gr.Dataframe(interactive=False, wrap=True, label="Comparación")
 
             # ------------------------------------------------------------ #
-            with gr.Tab("🧾 Mis transacciones"):
+            with gr.Tab("Evaluar"):
                 gr.Markdown(
-                    "Registra tu consumo en un restaurante. Queda **PENDIENTE** hasta que el "
-                    "restaurante lo confirme y lo complete; solo entonces podrás evaluar.  \n"
-                    "ℹ️ ¿Qué Como? **no procesa pagos**: pagas directamente en el restaurante. "
-                    "Aquí solo registras el consumo como evidencia para tu evaluación."
+                    "Elige uno de tus consumos. Solo puedes evaluar los que el restaurante ya "
+                    "**completó** y que aún no has evaluado. Si eliges otro, verás por qué no procede.",
+                    elem_classes="nota",
                 )
-                with gr.Row():
-                    t_restaurante = gr.Dropdown(vista.opciones_restaurantes(), label="Restaurante", scale=2)
-                    t_importe = gr.Number(label="Importe consumido (MXN)", value=250, minimum=1)
-                    t_boton = gr.Button("Registrar transacción", variant="primary")
-                t_mensaje = gr.Markdown(elem_classes="mensaje")
-                t_tabla = gr.Dataframe(interactive=False, wrap=True, label="Mis transacciones")
-                with gr.Row():
-                    t_cancelable = gr.Dropdown([], label="Transacción a cancelar", scale=2)
-                    t_cancelar = gr.Button("Cancelar transacción", variant="stop")
-
-            # ------------------------------------------------------------ #
-            with gr.Tab("⭐ Evaluar"):
-                gr.Markdown(
-                    "**Caso de uso CU-01.** Elige una de tus transacciones. El sistema verifica que esté "
-                    "**COMPLETADA** y que no se haya evaluado antes. Puedes elegir una que no cumpla "
-                    "para ver cómo se rechaza."
-                )
-                with gr.Row():
-                    e_transaccion = gr.Dropdown([], label="Transacción", scale=3)
-                    e_validar = gr.Button("Evaluar restaurante", variant="primary")
+                with gr.Row(equal_height=True):
+                    e_transaccion = gr.Dropdown([], label="Tu consumo", scale=3)
+                    e_validar = gr.Button("Evaluar restaurante", variant="primary", scale=1)
                 e_mensaje = gr.Markdown(elem_classes="mensaje")
                 with gr.Group(visible=False) as e_formulario:
                     e_calificacion = gr.Radio(
@@ -186,21 +149,36 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
                         placeholder="¿Qué tal la comida, el servicio y el lugar? (mínimo 10 caracteres)",
                         max_length=LONGITUD_MAXIMA_COMENTARIO,
                     )
-                    e_registrar = gr.Button("Registrar evaluación", variant="primary")
+                    e_registrar = gr.Button("Publicar evaluación", variant="primary")
+
+                with gr.Accordion("Registrar un consumo nuevo", open=False):
+                    gr.Markdown(
+                        "Registra tu visita para poder evaluarla después. El restaurante la confirma "
+                        "y la completa. ¿Qué Como? no procesa pagos: pagas directamente en el local.",
+                        elem_classes="nota",
+                    )
+                    with gr.Row(equal_height=True):
+                        t_restaurante = gr.Dropdown(vista.opciones_restaurantes(), label="Restaurante", scale=2)
+                        t_importe = gr.Number(label="Importe consumido (MXN)", value=250, minimum=1)
+                        t_boton = gr.Button("Registrar consumo", variant="secondary")
+                    t_mensaje = gr.Markdown(elem_classes="mensaje")
 
             # ------------------------------------------------------------ #
-            with gr.Tab("🏪 Locatario"):
-                gr.Markdown("Sección para **locatarios**. Con otro rol, el sistema rechazará las operaciones.")
+            with gr.Tab("Locatario"):
+                gr.Markdown(
+                    "Sección para locatarios. Con otro rol, el sistema rechaza las operaciones.",
+                    elem_classes="nota",
+                )
                 l_restaurante = gr.Dropdown([], label="Mi restaurante")
                 with gr.Tabs():
-                    with gr.Tab("Transacciones"):
+                    with gr.Tab("Confirmar consumos"):
                         l_mensaje_t = gr.Markdown(elem_classes="mensaje")
                         l_tabla_t = gr.Dataframe(interactive=False, wrap=True)
                         with gr.Row():
-                            l_transaccion = gr.Dropdown([], label="Transacción por gestionar", scale=2)
+                            l_transaccion = gr.Dropdown([], label="Consumo por gestionar", scale=2)
                             l_confirmar = gr.Button("Confirmar")
                             l_completar = gr.Button("Completar", variant="primary")
-                            l_cancelar = gr.Button("Cancelar", variant="stop")
+                            l_cancelar = gr.Button("Cancelar consumo", variant="stop")
                     with gr.Tab("Evaluaciones recibidas"):
                         l_mensaje_e = gr.Markdown()
                         l_tabla_e = gr.Dataframe(interactive=False, wrap=True)
@@ -244,7 +222,7 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
                               l_dias, l_apertura, l_cierre, l_pagos, l_precio, l_fecha]
 
             # ------------------------------------------------------------ #
-            with gr.Tab("🛡️ Administración"):
+            with gr.Tab("Administración"):
                 a_mensaje = gr.Markdown(elem_classes="mensaje")
                 with gr.Row():
                     with gr.Column():
@@ -264,7 +242,7 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
                             a_restaurar = gr.Button("Restaurar")
 
             # ------------------------------------------------------------ #
-            with gr.Tab("ℹ️ Acerca de"):
+            with gr.Tab("Acerca de"):
                 gr.Markdown(ACERCA_DE)
 
         # ================================================================ #
@@ -283,14 +261,10 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
 
         catalogos = [f_restaurante, c_restaurantes, t_restaurante, b_categoria, b_pago]
 
-        def refrescar_cliente(uid: Any) -> tuple[Any, ...]:
-            return (
-                vista.mis_transacciones(uid),
-                gr.update(choices=vista.opciones_cancelables(uid), value=None),
-                gr.update(choices=vista.opciones_para_evaluar(uid), value=vista.primera_evaluable(uid)),
-            )
+        def refrescar_cliente(uid: Any) -> Any:
+            return gr.update(choices=vista.opciones_para_evaluar(uid), value=vista.primera_evaluable(uid))
 
-        salidas_cliente = [t_tabla, t_cancelable, e_transaccion]
+        salidas_cliente = [e_transaccion]
 
         def refrescar_admin(uid: Any) -> tuple[Any, ...]:
             mensaje, tabla_r, tabla_e, opciones_r, opciones_e = vista.panel_admin(uid)
@@ -302,14 +276,15 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
             mis = vista.opciones_mis_restaurantes(uid)
             return (
                 vista.bienvenida(uid),
-                *refrescar_cliente(uid),
+                refrescar_cliente(uid),
                 "",
                 gr.update(visible=False),
+                "",
                 gr.update(choices=mis, value=mis[0][1] if mis else None),
                 *refrescar_admin(uid),
             )
 
-        salidas_usuario = [bienvenida, *salidas_cliente, e_mensaje, e_formulario, l_restaurante, *salidas_admin]
+        salidas_usuario = [bienvenida, *salidas_cliente, e_mensaje, e_formulario, t_mensaje, l_restaurante, *salidas_admin]
         usuario.change(cambiar_usuario, usuario, salidas_usuario)
 
         # Buscar
@@ -321,13 +296,12 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
         # Comparar
         c_boton.click(vista.comparar, [c_restaurantes, c_punto], [c_mensaje, c_tabla])
 
-        # Mis transacciones
-        t_boton.click(vista.registrar_transaccion, [usuario, t_restaurante, t_importe], t_mensaje).then(
-            refrescar_cliente, usuario, salidas_cliente
-        )
-        t_cancelar.click(vista.cancelar_transaccion, [usuario, t_cancelable], t_mensaje).then(
-            refrescar_cliente, usuario, salidas_cliente
-        )
+        # Registrar consumo (HU-06), dentro de Evaluar
+        def registrar_consumo(uid: Any, rid: Any, importe: Any) -> tuple[Any, ...]:
+            mensaje = vista.registrar_transaccion(uid, rid, importe)
+            return mensaje, gr.update(choices=vista.opciones_para_evaluar(uid))
+
+        t_boton.click(registrar_consumo, [usuario, t_restaurante, t_importe], [t_mensaje, e_transaccion])
 
         # Evaluar (CU-01)
         def validar(uid: Any, tid: Any) -> tuple[Any, ...]:
@@ -344,9 +318,9 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
         e_registrar.click(
             registrar, [usuario, e_transaccion, e_calificacion, e_comentario], [e_mensaje, e_formulario]
         ).success(
-            lambda uid: (vista.mis_transacciones(uid), gr.update(choices=vista.opciones_para_evaluar(uid))),
+            lambda uid: gr.update(choices=vista.opciones_para_evaluar(uid)),
             usuario,
-            [t_tabla, e_transaccion],
+            e_transaccion,
         )
 
         # Locatario
