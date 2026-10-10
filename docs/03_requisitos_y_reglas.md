@@ -12,6 +12,7 @@
 | RN-04 | Una evaluación no puede usarse para crear posteriormente una transacción. | `Evaluacion.crear()` exige una transacción ya evaluable; no existe operación inversa |
 | RN-05 | Una transacción cancelada o incompleta no habilita la evaluación. | `Transaccion.es_valida()` → solo `COMPLETADA` |
 | RN-06 | Una transacción ya utilizada no habilita otra evaluación. | `Transaccion.vincular_evaluacion()` + candado del controlador + unicidad en `RepositorioEvaluaciones.guardar()` |
+| RN-07 | ¿Qué Como? no ofrece ni procesa pagos en línea. Solo se informan formas de pago en el local: efectivo, tarjeta de débito y tarjeta de crédito. *(Agregada en v0.2.0.)* | `FORMAS_PAGO_PERMITIDAS` y validación en `Restaurante.__post_init__()` |
 
 ## Requisitos funcionales
 
@@ -45,7 +46,7 @@
 |---|---|---|
 | RNF-01 | La interfaz debe estar completamente en español. | ✅ |
 | RNF-02 | Los mensajes de rechazo deben explicar el motivo con lenguaje claro. | ✅ |
-| RNF-03 | Las reglas de negocio deben tener pruebas automatizadas. | ✅ 110 pruebas, CI en GitHub Actions |
+| RNF-03 | Las reglas de negocio deben tener pruebas automatizadas. | ✅ 114 pruebas, CI en GitHub Actions |
 | RNF-04 | Publicar solo el nombre y la inicial del apellido de quien evalúa (minimización de datos). | ✅ `Usuario.nombre_publico()` |
 | RNF-05 | No mostrar públicamente el importe de las transacciones. | ✅ |
 | RNF-06 | Comentarios de 10 a 500 caracteres; calificación entera de 1 a 5. | ✅ `Evaluacion.validar()` |
@@ -58,3 +59,4 @@
 | ¿Puede el administrador completar transacciones? | **No.** Puede suspender restaurantes y moderar evaluaciones. | Nadie ajeno a la relación comercial debe fabricar evidencia. |
 | ¿Ocultar una evaluación libera la transacción? | **No.** | Evita borrar y reescribir evaluaciones para manipular el ranking. |
 | ¿Hay plazo para evaluar? | No en el MVP. | Pendiente de decisión de negocio. |
+| ¿Se ofrecen pagos en línea? | **No** (RN-07). Se eliminó «Transferencia» y la interfaz aclara que se paga en el local. | Observación de revisión del proyecto (v0.2.0): mantener el alcance en consulta y evaluación, sin manejo de dinero. |

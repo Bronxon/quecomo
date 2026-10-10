@@ -78,7 +78,36 @@ pinned: false
 
 > ⚠️ La demo usa **inicio de sesión simulado** y **datos ficticios**. No permitas que personas reales capturen datos personales en ella (ver [10](10_cumplimiento_legal.md)).
 
-## 6. Exponer la app temporalmente desde tu computadora
+## 6. Desplegar en Render
+
+El repositorio ya incluye lo necesario:
+
+| Archivo | Para qué sirve |
+|---|---|
+| `render.yaml` | Define el servicio: comando de instalación, comando de inicio y variables |
+| `.python-version` | Fija Python 3.13 (Render usa 3.14 por defecto) |
+| `app.py` | Si existe la variable `PORT`, escucha en `0.0.0.0:$PORT`, como exige Render |
+
+**Opción A — Blueprint (recomendada):** en Render, *New → Blueprint*, elige tu repositorio y confirma. Render lee `render.yaml`.
+
+**Opción B — Web Service manual:** *New → Web Service*, elige el repositorio y configura:
+
+| Campo | Valor |
+|---|---|
+| Runtime | Python 3 |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `python app.py` |
+
+### Errores frecuentes
+
+| Mensaje en el log | Causa | Solución |
+|---|---|---|
+| `Application exited early` justo después de `Running 'pip install -r requirements.txt'` | Pusiste el comando de instalación como **Start Command** | Start Command = `python app.py` (Settings → Build & Deploy) |
+| `No open ports detected` | La app escucha en `127.0.0.1` | Usa la versión actual de `app.py`, que lee `PORT` |
+| La primera visita tarda ~1 minuto | El plan gratuito suspende el servicio tras un rato sin uso | Normal en plan gratuito |
+| Se pierden evaluaciones y transacciones nuevas | Los datos viven en memoria y se reinician en cada arranque | Normal en el MVP; se resuelve con persistencia (hoja de ruta) |
+
+## 7. Exponer la app temporalmente desde tu computadora
 
 ```python
 # En app.py, solo para una demostración rápida:

@@ -46,9 +46,13 @@ class TestCA02Filtros:
         assert resultados and all(r.distancia_km <= 1 for r in resultados)
 
     def test_forma_de_pago(self, app_demo):
-        resultados = app_demo.busqueda.buscar(CriteriosBusqueda(forma_pago="Transferencia"))
-        assert all("Transferencia" in r.restaurante.formas_pago for r in resultados)
-        assert "Antojitos Doña Chayo" not in nombres(resultados)
+        resultados = app_demo.busqueda.buscar(CriteriosBusqueda(forma_pago="Tarjeta de crédito"))
+        assert resultados and all("Tarjeta de crédito" in r.restaurante.formas_pago for r in resultados)
+        assert "Antojitos Doña Chayo" not in nombres(resultados)  # solo efectivo
+
+    def test_rn07_no_hay_pagos_en_linea(self, app_demo):
+        """RN-07: ni el catálogo de filtros ni los restaurantes ofrecen pagos en línea."""
+        assert app_demo.busqueda.formas_pago() == ["Efectivo", "Tarjeta de crédito", "Tarjeta de débito"]
 
     def test_horario(self, app_demo):
         # Sábado 13:00: Antojitos (L-S 8-16) abierto; Tacos La Lumbre (18-02) cerrado.

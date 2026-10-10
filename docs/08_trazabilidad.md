@@ -29,6 +29,7 @@
 | Regla de evaluación | Guarda `[COMPLETADA AND noExisteEvaluacion]` | `puede_evaluarse()` | `test_completada_sin_evaluacion_habilita`, `test_ya_evaluada_no_habilita_otra` |
 | Seguridad | CA-08 | `autorizacion.exigir_propietario(..., permitir_admin=False)` | `TestCA08ControlDeEstados` |
 | Fiabilidad | RN-06 | Candado + unicidad en repositorio | `test_concurrencia_no_duplica_evaluaciones`, `test_repositorio_rechaza_duplicado_como_restriccion_unica` |
+| Revisión del proyecto | RN-07 sin pagos en línea | `FORMAS_PAGO_PERMITIDAS`, validación de `Restaurante` | `test_rn07_no_hay_pagos_en_linea`, `test_rn07_interfaz_sin_pagos_en_linea` |
 | Rol Administrador | Moderación (HT-01) | `ServicioRestaurantes.ocultar_evaluacion` | `TestAdministrador` |
 | Locatario | HU-09, HU-10, HU-11 | `ServicioRestaurantes` | `test_restaurantes.py` |
 

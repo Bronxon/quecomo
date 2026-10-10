@@ -13,8 +13,7 @@ import gradio as gr
 
 from ..aplicacion.servicio_busqueda import MAXIMO_COMPARACION, Orden
 from ..configuracion import Aplicacion, crear_aplicacion
-from ..dominio.entidades import DIAS_SEMANA, LONGITUD_MAXIMA_COMENTARIO
-from ..infraestructura.datos_demo import CREDITO, DEBITO, EFECTIVO, TRANSFERENCIA
+from ..dominio.entidades import DIAS_SEMANA, FORMAS_PAGO_PERMITIDAS, LONGITUD_MAXIMA_COMENTARIO
 from .vista import (
     HORARIO_CUALQUIERA,
     OPCIONES_HORARIO,
@@ -73,7 +72,8 @@ tampoco puede fabricarla: así nadie se habilita una evaluación a sí mismo.
 ### Limitaciones del prototipo
 - El inicio de sesión es **simulado** (se elige un usuario de demostración).
 - Los datos viven **en memoria**: se reinician al reiniciar la aplicación.
-- La «transacción» es un registro declarado, no un cobro real. Ver `docs/` en el repositorio.
+- ¿Qué Como? **no ofrece pagos en línea**: el pago se hace en el restaurante y la «transacción» es
+  solo el registro del consumo. Ver `docs/` en el repositorio.
 """
 
 
@@ -81,7 +81,7 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
     vista = Vista(app or crear_aplicacion())
     hoy = vista.app.reloj().date()
     usuario_inicial = 1
-    formas_pago = [EFECTIVO, DEBITO, CREDITO, TRANSFERENCIA]
+    formas_pago = list(FORMAS_PAGO_PERMITIDAS)
 
     with gr.Blocks(title="¿Qué Como?", analytics_enabled=False) as demo:
         gr.HTML(ENCABEZADO)
@@ -106,7 +106,7 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
                         b_punto = gr.Dropdown(vista.opciones_puntos(), value="Centro", label="Punto de referencia")
                         b_distancia = gr.Slider(0.5, 15, value=15, step=0.5, label="Distancia máxima (km)")
                         b_horario = gr.Dropdown(OPCIONES_HORARIO, value=HORARIO_CUALQUIERA, label="Horario")
-                        b_pago = gr.Dropdown(vista.opciones_formas_pago(), value=TODAS, label="Forma de pago")
+                        b_pago = gr.Dropdown(vista.opciones_formas_pago(), value=TODAS, label="Forma de pago en el local")
                         b_calificacion = gr.Slider(0, 5, value=0, step=0.5, label="Calificación mínima")
                         b_promo = gr.Checkbox(label="Solo con promoción vigente")
                         b_orden = gr.Radio([o.value for o in Orden], value=Orden.RANKING.value, label="Ordenar por")
@@ -149,11 +149,13 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
             with gr.Tab("🧾 Mis transacciones"):
                 gr.Markdown(
                     "Registra tu consumo en un restaurante. Queda **PENDIENTE** hasta que el "
-                    "restaurante lo confirme y lo complete; solo entonces podrás evaluar."
+                    "restaurante lo confirme y lo complete; solo entonces podrás evaluar.  \n"
+                    "ℹ️ ¿Qué Como? **no procesa pagos**: pagas directamente en el restaurante. "
+                    "Aquí solo registras el consumo como evidencia para tu evaluación."
                 )
                 with gr.Row():
                     t_restaurante = gr.Dropdown(vista.opciones_restaurantes(), label="Restaurante", scale=2)
-                    t_importe = gr.Number(label="Importe (MXN)", value=250, minimum=1)
+                    t_importe = gr.Number(label="Importe consumido (MXN)", value=250, minimum=1)
                     t_boton = gr.Button("Registrar transacción", variant="primary")
                 t_mensaje = gr.Markdown(elem_classes="mensaje")
                 t_tabla = gr.Dataframe(interactive=False, wrap=True, label="Mis transacciones")
@@ -217,7 +219,7 @@ def construir_interfaz(app: Aplicacion | None = None) -> gr.Blocks:
                             l_apertura = gr.Textbox(label="Apertura (HH:MM)")
                             l_cierre = gr.Textbox(label="Cierre (HH:MM)")
                         with gr.Row():
-                            l_pagos = gr.CheckboxGroup(formas_pago, label="Formas de pago")
+                            l_pagos = gr.CheckboxGroup(formas_pago, label="Formas de pago aceptadas en el local")
                             l_fecha = gr.Textbox(label="Fecha de apertura (AAAA-MM-DD)")
                         with gr.Row():
                             l_guardar = gr.Button("Guardar cambios", variant="primary")

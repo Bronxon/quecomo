@@ -15,7 +15,7 @@
 | Una reseña ligada a una transacción genera más confianza | **Supuesto central** | Ninguna |
 | Los clientes registrarán sus transacciones en la app | **Supuesto crítico** | Ninguna |
 | Los restaurantes confirmarán y completarán transacciones | **Supuesto crítico** | Ninguna |
-| Es posible construir la regla de confianza de forma fiable | Hecho (técnico) | Este MVP y sus 110 pruebas |
+| Es posible construir la regla de confianza de forma fiable | Hecho (técnico) | Este MVP y sus 114 pruebas |
 
 ## 3. Supuestos de mayor riesgo (priorizados)
 

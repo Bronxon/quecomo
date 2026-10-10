@@ -7,7 +7,7 @@
 | Concepto | Atributos esenciales | Responsabilidad | Clase |
 |---|---|---|---|
 | Usuario | id, nombre, contacto, rol, estado | Participa en transacciones y evaluaciones | `Usuario` |
-| Restaurante | id, nombre, descripción, categoría, horarios, formas de pago, precio promedio, fecha de apertura, estado | Información presentada al usuario | `Restaurante` |
+| Restaurante | id, nombre, descripción, categoría, horarios, formas de pago en el local (RN-07), precio promedio, fecha de apertura, estado | Información presentada al usuario | `Restaurante` |
 | Transacción | id, fecha, importe, estado, historial | Demuestra la relación comercial y decide si respalda una evaluación | `Transaccion` |
 | Evaluación | id, calificación, comentario, fecha, estado | Retroalimentación vinculada a una transacción | `Evaluacion` |
 | Menú | id, nombre, descripción, activo | Agrupa la oferta | `Menu` |

@@ -14,6 +14,7 @@ from __future__ import annotations
 from datetime import date, datetime, time, timedelta
 
 from ..dominio.entidades import (
+    FORMAS_PAGO_PERMITIDAS,
     Evaluacion,
     Horario,
     Menu,
@@ -33,12 +34,8 @@ from ..dominio.repositorios import (
 )
 
 TODOS = frozenset(range(7))
-EFECTIVO, DEBITO, CREDITO, TRANSFERENCIA = (
-    "Efectivo",
-    "Tarjeta de débito",
-    "Tarjeta de crédito",
-    "Transferencia",
-)
+# Solo pagos en el local: ¿Qué Como? no maneja pagos en línea (RN-07).
+EFECTIVO, DEBITO, CREDITO = FORMAS_PAGO_PERMITIDAS
 
 # (nombre, latitud, longitud) — coordenadas de demostración.
 PUNTOS_REFERENCIA: list[tuple[str, float, float]] = [
@@ -109,7 +106,7 @@ def _restaurantes(hoy: date) -> list[Restaurante]:
             categoria="Tacos",
             ubicacion=Ubicacion("Calle Fogón 45", 29.0741, -110.9530, "Centro"),
             horario=h(frozenset({1, 2, 3, 4, 5, 6}), "18:00", "02:00"),
-            formas_pago=frozenset({EFECTIVO, TRANSFERENCIA}),
+            formas_pago=frozenset({EFECTIVO}),
             precio_promedio=120,
             fecha_apertura=date(2018, 9, 1),
             locatario_id=4,
@@ -127,7 +124,7 @@ def _restaurantes(hoy: date) -> list[Restaurante]:
             categoria="Cafetería",
             ubicacion=Ubicacion("Blvd. Sahuaro 300", 29.0868, -110.9615, "Zona Universitaria"),
             horario=h(frozenset({0, 1, 2, 3, 4, 5}), "07:00", "21:00"),
-            formas_pago=frozenset({EFECTIVO, DEBITO, CREDITO, TRANSFERENCIA}),
+            formas_pago=frozenset({EFECTIVO, DEBITO, CREDITO}),
             precio_promedio=110,
             fecha_apertura=date(2021, 2, 10),
             locatario_id=4,
@@ -163,7 +160,7 @@ def _restaurantes(hoy: date) -> list[Restaurante]:
             categoria="Sushi",
             ubicacion=Ubicacion("Plaza Oriente local 8", 29.0650, -110.9350, "Centro"),
             horario=h(TODOS, "13:00", "22:30"),
-            formas_pago=frozenset({DEBITO, CREDITO, TRANSFERENCIA}),
+            formas_pago=frozenset({DEBITO, CREDITO}),
             precio_promedio=260,
             fecha_apertura=date(2016, 6, 5),
             locatario_id=5,
@@ -198,7 +195,7 @@ def _restaurantes(hoy: date) -> list[Restaurante]:
             categoria="Vegetariana",
             ubicacion=Ubicacion("Av. Jardín 77", 29.0880, -110.9990, "Zona Poniente"),
             horario=h(frozenset({0, 1, 2, 3, 4, 5}), "09:00", "18:00"),
-            formas_pago=frozenset({DEBITO, CREDITO, TRANSFERENCIA}),
+            formas_pago=frozenset({DEBITO, CREDITO}),
             precio_promedio=180,
             fecha_apertura=date(2022, 8, 1),
             locatario_id=6,

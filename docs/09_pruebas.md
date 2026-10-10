@@ -45,6 +45,7 @@ Todas usan un **reloj fijo** (sábado 10/10/2026, 13:00) definido en `tests/conf
 | RN-04 | `test_rn04_evaluacion_no_puede_crearse_sin_transaccion_valida` |
 | RN-05 | `test_cancelada_no_habilita`, `test_ca04_rn05_transaccion_cancelada_no_habilita` |
 | RN-06 | `test_rn06_una_sola_evaluacion_por_transaccion`, `test_concurrencia_no_duplica_evaluaciones`, `test_repositorio_rechaza_duplicado_como_restriccion_unica` |
+| RN-07 | `test_rn07_no_hay_pagos_en_linea`, `test_rn07_interfaz_sin_pagos_en_linea`, `test_validaciones_de_registro` |
 
 ## Pruebas manuales sugeridas (exploratorias)
 

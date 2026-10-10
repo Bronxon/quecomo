@@ -83,3 +83,13 @@ def test_formulario_del_locatario(vista):
     campos[0] = "Mariscos El Faro Azul Renovado"
     assert vista.guardar_restaurante(4, 1, *campos).startswith("✅")
     assert vista.app.restaurantes.obtener(1).nombre.endswith("Renovado")
+
+
+def test_rn07_interfaz_sin_pagos_en_linea(vista):
+    assert "Transferencia" not in vista.opciones_formas_pago()
+    texto, _ = vista.ficha(2, "Centro")
+    assert "Formas de pago en el local:** Efectivo" in texto
+    campos = vista.datos_formulario(1)
+    campos[9] = ["Efectivo", "Transferencia"]
+    mensaje = vista.guardar_restaurante(4, 1, *campos)
+    assert mensaje.startswith("⛔") and "pagos en línea" in mensaje

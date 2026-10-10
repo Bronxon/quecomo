@@ -43,6 +43,11 @@ LONGITUD_MAXIMA_COMENTARIO = 500
 
 DIAS_SEMANA = ("Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom")
 
+#: Formas de pago que el restaurante acepta **en el local** (RN-07).
+#: ¿Qué Como? no procesa ni ofrece pagos en línea (transferencias, pasarelas,
+#: carteras digitales): solo informa cómo se puede pagar al consumir.
+FORMAS_PAGO_PERMITIDAS: tuple[str, ...] = ("Efectivo", "Tarjeta de débito", "Tarjeta de crédito")
+
 RADIO_TIERRA_KM = 6371.0
 
 
@@ -238,6 +243,13 @@ class Restaurante:
         self.precio_promedio = a_decimal(self.precio_promedio, "precio promedio")
         if not self.formas_pago:
             raise DatosInvalidos("Indica al menos una forma de pago.")
+        no_permitidas = set(self.formas_pago) - set(FORMAS_PAGO_PERMITIDAS)
+        if no_permitidas:
+            raise DatosInvalidos(
+                f"Forma de pago no permitida: {', '.join(sorted(no_permitidas))}. "
+                "¿Qué Como? no maneja pagos en línea; solo se registran pagos en el local "
+                f"({', '.join(FORMAS_PAGO_PERMITIDAS)})."
+            )
 
     # -- Conocer --------------------------------------------------------- #
 

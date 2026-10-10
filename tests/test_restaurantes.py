@@ -48,6 +48,8 @@ def test_cliente_no_registra_restaurantes(app):
     [
         {"nombre": ""},
         {"formas_pago": []},
+        {"formas_pago": ["Efectivo", "Transferencia"]},  # RN-07: sin pagos en línea
+        {"formas_pago": ["Pago en línea"]},
         {"dias": []},
         {"apertura": "8am"},
         {"precio_promedio": 0},

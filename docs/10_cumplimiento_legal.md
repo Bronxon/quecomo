@@ -13,7 +13,7 @@
 | Usuarios | Usuarios de demostración ficticios | Público en general y restaurantes |
 | Operación | Local / demostración | México |
 | Datos personales | Ficticios, en memoria | Nombre, correo, transacciones, evaluaciones y, posiblemente, ubicación |
-| Pagos | No hay | No previsto (la transacción es un registro, no un cobro) |
+| Pagos | No hay | **Excluidos por decisión de producto (RN-07):** no hay pagos en línea; la transacción es un registro, no un cobro |
 | Contenido de terceros | Textos ficticios | Menús, fotos y logotipos de restaurantes; reseñas de usuarios |
 | Uso de IA en el producto | No | No previsto |
 

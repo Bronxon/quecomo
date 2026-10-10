@@ -229,7 +229,7 @@ class Vista:
             f"**Ubicación:** {r.ubicacion.direccion}, {r.ubicacion.zona}"
             + (f" · a {info.distancia_km} km de {punto}" if info.distancia_km is not None else "")
             + "  ",
-            f"**Formas de pago:** {', '.join(sorted(r.formas_pago))}  ",
+            f"**Formas de pago en el local:** {', '.join(sorted(r.formas_pago))}  ",
             f"**Antigüedad:** {info.antiguedad_anios} año(s) (desde {r.fecha_apertura:%Y})",
         ]
         promos = r.promociones_vigentes(hoy)
@@ -278,7 +278,7 @@ class Vista:
             "Distancia (km)": lambda x: x.distancia_km if x.distancia_km is not None else "—",
             "Horario": lambda x: x.restaurante.horario.describir(),
             "Abierto ahora": lambda x: "Sí" if x.abierto else "No",
-            "Formas de pago": lambda x: ", ".join(sorted(x.restaurante.formas_pago)),
+            "Pago en el local": lambda x: ", ".join(sorted(x.restaurante.formas_pago)),
             "Promociones vigentes": lambda x: "; ".join(p.descripcion for p in x.restaurante.promociones_vigentes(hoy)) or "—",
             "Antigüedad (años)": lambda x: x.antiguedad_anios,
             "Productos en menú": lambda x: len(x.restaurante.productos()),
