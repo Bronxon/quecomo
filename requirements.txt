@@ -1,0 +1,4 @@
+# Dependencias para ejecutar la aplicación
+gradio>=6.0,<7
+pandas>=2.0
+tzdata>=2024.1   # zonas horarias en Windows
