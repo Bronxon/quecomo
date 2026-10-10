@@ -1,0 +1,12 @@
+# Configuración de despliegue en Render (Blueprint).
+# Render la detecta al crear el servicio desde «New → Blueprint».
+services:
+  - type: web
+    name: que-como
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: QUECOMO_ZONA_HORARIA
+        value: America/Hermosillo
