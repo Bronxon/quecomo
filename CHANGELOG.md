@@ -2,6 +2,27 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado [SemVer](https://semver.org/lang/es/).
 
+## [0.2.0] — 2026-10-10
+
+### Eliminado
+- Opción de pago en línea **«Transferencia»** en toda la interfaz: filtro de búsqueda, ficha del restaurante, comparación, formulario del locatario y datos de demostración.
+
+### Agregado
+- **RN-07:** ¿Qué Como? no ofrece ni procesa pagos en línea. Solo se aceptan formas de pago en el local (efectivo, tarjeta de débito, tarjeta de crédito), validadas en el dominio.
+- Aviso en «Mis transacciones» y en «Acerca de»: la app no procesa pagos; se paga en el restaurante.
+- 4 pruebas nuevas (114 en total).
+
+### Cambiado
+- Etiquetas: «Forma de pago en el local», «Formas de pago aceptadas en el local», «Pago en el local» (comparación), «Importe consumido (MXN)».
+
+## [0.1.1] — 2026-10-10
+
+### Agregado
+- Despliegue en Render: `render.yaml` y `.python-version` (Python 3.13).
+
+### Corregido
+- `app.py` escucha en `0.0.0.0:$PORT` cuando la plataforma define `PORT`; en local sigue usando `127.0.0.1:7860`.
+
 ## [0.1.0] — 2026-10-10
 
 Primera versión del MVP, construida a partir del *Documento Fundamental de Desarrollo* (Actividades 1–4).

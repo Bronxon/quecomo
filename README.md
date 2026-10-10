@@ -37,8 +37,8 @@ Este repositorio contiene el **MVP académico** desarrollado en Python con [Grad
 
 | Pestaña | Qué permite | Historias |
 |---|---|---|
-| 🔎 **Buscar** | Buscar por texto (incluye platillos del menú) y filtrar por tipo de comida, precio, distancia, horario, forma de pago, calificación mínima y promociones. Ordenar por ranking, cercanía, precio o antigüedad. | HU-01, HU-02, HU-05 |
-| 📋 **Ficha del restaurante** | Descripción, horario, ubicación, formas de pago, antigüedad, menú, promociones vigentes, distribución de calificaciones y evaluaciones verificadas. | HU-03, HU-05 |
+| 🔎 **Buscar** | Buscar por texto (incluye platillos del menú) y filtrar por tipo de comida, precio, distancia, horario, forma de pago en el local, calificación mínima y promociones. Ordenar por ranking, cercanía, precio o antigüedad. | HU-01, HU-02, HU-05 |
+| 📋 **Ficha del restaurante** | Descripción, horario, ubicación, formas de pago en el local, antigüedad, menú, promociones vigentes, distribución de calificaciones y evaluaciones verificadas. | HU-03, HU-05 |
 | ⚖️ **Comparar** | Comparar de 2 a 3 restaurantes lado a lado en 11 criterios. | HU-04 |
 | 🧾 **Mis transacciones** | Registrar un consumo y seguir su estado; cancelar si aún no concluye. | HU-06 |
 | ⭐ **Evaluar** | Caso de uso **CU-01**: validar la transacción y registrar la evaluación. Muestra el motivo exacto cuando se rechaza. | HU-07, HU-08 |
@@ -65,6 +65,7 @@ stateDiagram-v2
 - **RN-04** Una evaluación nunca crea ni justifica una transacción.
 - **RN-05** Una transacción cancelada o incompleta no habilita la evaluación.
 - **RN-06** Una transacción respalda como máximo una evaluación.
+- **RN-07** ¿Qué Como? **no ofrece ni procesa pagos en línea**: solo informa si el restaurante acepta efectivo o tarjeta en el local.
 - **CA-08** El cliente **no** puede completar su propia transacción; el administrador **tampoco** puede fabricar esa evidencia. Solo el locatario dueño la confirma y completa.
 
 La decisión `puede_evaluarse()` vive en la clase `Transaccion` (patrón GRASP *Information Expert*) y se aplica en `[estado == COMPLETADA AND noExisteEvaluacion]`.
@@ -98,6 +99,7 @@ Variables de entorno opcionales:
 | `QUECOMO_ZONA_HORARIA` | Zona horaria para «abierto ahora» | `America/Hermosillo` |
 | `GRADIO_SERVER_NAME` | Dirección de escucha (`0.0.0.0` para exponer en red) | `127.0.0.1` |
 | `GRADIO_SERVER_PORT` | Puerto | `7860` |
+| `PORT` | Puerto asignado por la nube (Render); activa `0.0.0.0` automáticamente | — |
 
 ## Cómo probarla en 2 minutos
 
@@ -151,10 +153,11 @@ que-como/
 │   ├── infraestructura/           # Repositorios en memoria y datos de demostración
 │   ├── presentacion/              # Interfaz Gradio (interfaz.py) y adaptador (vista.py)
 │   └── configuracion.py           # Raíz de composición: arma la aplicación
-├── tests/                         # 110 pruebas (unitarias, integración y presentación)
+├── tests/                         # 114 pruebas (unitarias, integración y presentación)
 ├── docs/                          # Documentación de ingeniería, legal y de negocio
 │   └── referencias/               # Documento Fundamental original (PDF)
 ├── .github/workflows/pruebas.yml  # Integración continua
+├── render.yaml · .python-version  # Despliegue en Render
 ├── requirements.txt / requirements-dev.txt / pyproject.toml
 └── CONTRIBUTING.md · CHANGELOG.md · LICENSE
 ```
@@ -185,13 +188,13 @@ Las pruebas están trazadas a los criterios de aceptación (CA-01…CA-08) y reg
 | [09 · Pruebas](docs/09_pruebas.md) | Estrategia y mapeo CA/RN → pruebas |
 | [10 · Cumplimiento legal (preliminar)](docs/10_cumplimiento_legal.md) | Datos personales, licencias, riesgos (México) |
 | [11 · Validación y modelo de negocio](docs/11_validacion_y_modelo_de_negocio.md) | Hipótesis, experimentos, métricas, riesgos |
-| [12 · GitHub y despliegue](docs/12_guia_github_y_despliegue.md) | Subir el repositorio y publicar la demo |
+| [12 · GitHub y despliegue](docs/12_guia_github_y_despliegue.md) | Subir el repositorio y publicar la demo (Render o Hugging Face) |
 
 ## Limitaciones y riesgos conocidos
 
 - **Inicio de sesión simulado.** No hay contraseñas ni autenticación real; el selector de usuario existe solo para la demostración.
 - **Datos en memoria.** Se reinician al reiniciar la app. Los contratos de repositorio permiten cambiar a SQLite/PostgreSQL sin tocar el dominio.
-- **La transacción es declarativa.** No hay cobro ni integración con punto de venta: el restaurante confirma y completa manualmente.
+- **Sin pagos en línea (decisión de producto).** La app no cobra ni ofrece transferencias o pasarelas: el pago ocurre en el restaurante y la transacción es solo el registro del consumo, que el restaurante confirma y completa manualmente.
 - **Riesgo de diseño importante:** como el locatario decide si una transacción se completa, podría **no completar** las de clientes insatisfechos para evitar malas evaluaciones. Ver mitigaciones propuestas en [`docs/11_validacion_y_modelo_de_negocio.md`](docs/11_validacion_y_modelo_de_negocio.md#4-riesgo-crítico-el-locatario-controla-la-evidencia).
 - **Uso no apto para producción** sin antes atender los pendientes de [`docs/10_cumplimiento_legal.md`](docs/10_cumplimiento_legal.md) (aviso de privacidad, términos de uso, autenticación, persistencia segura).
 
