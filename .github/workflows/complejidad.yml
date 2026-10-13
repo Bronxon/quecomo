@@ -1,0 +1,38 @@
+
+name: Analisis de complejidad - QueComo
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - "feature/**"
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  complejidad:
+    name: Medir complejidad ciclomática
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar Radon
+        run: python -m pip install radon
+
+      - name: Analizar complejidad
+        run: |
+          radon cc src/quecomo -s -n B
