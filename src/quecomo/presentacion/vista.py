@@ -256,14 +256,31 @@ class Vista:
     # Ficha del restaurante (HU-03, HU-05)
     # ------------------------------------------------------------------ #
 
-    @capturar_errores(pd.DataFrame())
+    
+   
     def ficha(self, restaurante_id: Any, punto: str) -> tuple[str, pd.DataFrame]:
         rid = _id(restaurante_id)
         if rid is None:
             return "Selecciona un restaurante para ver su información.", pd.DataFrame()
+
         info = self.app.busqueda.detalle(rid, self.app.punto(punto))
-        r, hoy = info.restaurante, self.app.reloj().date()
-        lineas = [
+        r = info.restaurante
+        hoy = self.app.reloj().date()
+
+        lineas = self._lineas_basicas_ficha(info, punto)
+        lineas.extend(self._lineas_promociones(r, hoy))
+        lineas.extend(self._lineas_distribucion(info.ranking))
+        lineas.extend(self._lineas_evaluaciones(r))
+
+        menu = pd.DataFrame(
+            [[p.nombre, p.descripcion, dinero(p.precio)] for p in r.productos()],
+            columns=["Producto", "Descripción", "Precio"],
+        )
+        return "\n".join(lineas), menu
+
+    def _lineas_basicas_ficha(self, info: Any, punto: str) -> list[str]:
+        r = info.restaurante
+        return [
             f"## {r.nombre}",
             f"*{r.categoria}* · {r.descripcion}",
             "",
@@ -276,22 +293,38 @@ class Vista:
             f"**Formas de pago en el local:** {', '.join(sorted(r.formas_pago))}  ",
             f"**Antigüedad:** {info.antiguedad_anios} año(s) (desde {r.fecha_apertura:%Y})",
         ]
-        promos = r.promociones_vigentes(hoy)
-        lineas += ["", "### 🏷️ Promociones vigentes"]
-        lineas += [f"- **{p.descripcion}** (hasta {p.fin:%d/%m/%Y}). {p.condiciones}" for p in promos] or ["- Sin promociones vigentes."]
 
-        lineas += ["", "### 📊 Distribución de calificaciones"]
-        total = info.ranking.total or 1
-        for n, cantidad in info.ranking.distribucion.items():
+    @staticmethod
+    def _lineas_promociones(restaurante: Any, hoy: Any) -> list[str]:
+        promos = restaurante.promociones_vigentes(hoy)
+        lineas = ["", "### 🏷️ Promociones vigentes"]
+        lineas.extend(
+            f"- **{p.descripcion}** (hasta {p.fin:%d/%m/%Y}). {p.condiciones}"
+            for p in promos
+        )
+        return lineas if promos else lineas + ["- Sin promociones vigentes."]
+
+    @staticmethod
+    def _lineas_distribucion(ranking: Any) -> list[str]:
+        lineas = ["", "### 📊 Distribución de calificaciones"]
+        total = ranking.total or 1
+        for n, cantidad in ranking.distribucion.items():
             barra = "█" * round(10 * cantidad / total)
             lineas.append(f"`{n}★ {barra:<10} {cantidad}`  ")
+        return lineas
 
-        lineas += ["", "### 💬 Evaluaciones verificadas"]
+    def _lineas_evaluaciones(self, restaurante: Any) -> list[str]:
+        lineas = ["", "### 💬 Evaluaciones verificadas"]
         evaluaciones = sorted(
-            self.app.evaluaciones.obtener_por_restaurante(r.id), key=lambda e: e.fecha, reverse=True
+            self.app.evaluaciones.obtener_por_restaurante(restaurante.id),
+            key=lambda e: e.fecha,
+            reverse=True,
         )
         if not evaluaciones:
-            lineas.append("Aún no hay evaluaciones. Solo quien completa un consumo aquí puede evaluar.")
+            return lineas + [
+                "Aún no hay evaluaciones. Solo quien completa un consumo aquí puede evaluar."
+            ]
+
         for e in evaluaciones:
             autor = self.app.usuarios.obtener(e.usuario_id)
             nombre = autor.nombre_publico() if autor else "Usuario"
@@ -300,11 +333,7 @@ class Vista:
                 f"  {e.comentario}  \n"
                 f"  <small>✔ Respaldada por el consumo #{e.transaccion_id}</small>"
             )
-        menu = pd.DataFrame(
-            [[p.nombre, p.descripcion, dinero(p.precio)] for p in r.productos()],
-            columns=["Producto", "Descripción", "Precio"],
-        )
-        return "\n".join(lineas), menu
+        return lineas
 
     # ------------------------------------------------------------------ #
     # Comparar (HU-04)
