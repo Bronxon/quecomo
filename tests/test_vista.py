@@ -153,4 +153,3 @@ def test_tabla_transacciones_vacia(vista):
     assert list(tabla.columns) == [
         "ID", "Fecha", "Restaurante", "Importe", "Estado", "Evaluada"
     ]
-```
