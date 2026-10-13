@@ -675,6 +675,53 @@ class Vista:
         e = servicio.restaurar_evaluacion(_id(usuario_id), _id(evaluacion_id))
         return ok(f"Evaluación #{e.id} restaurada.")
 
+def test_bienvenida_usuario_inexistente(vista):
+    assert vista.bienvenida(None) == "Selecciona un usuario de demostración."
+
+
+def test_rol_usuario_inexistente(vista):
+    assert vista.rol_de(None) is None
+
+
+
+def test_momento_sin_horario(vista):
+    assert vista._momento(None) is None
+    assert vista._momento("") is None
+    assert vista._momento("Cualquier horario") is None
+
+def test_ficha_sin_restaurante_seleccionado(vista):
+    texto, menu = vista.ficha(None, "Centro")
+
+    assert texto == "Selecciona un restaurante para ver su información."
+    assert menu.empty
+
+
+def test_datos_formulario_restaurante_inexistente(vista):
+    campos = vista.datos_formulario(-999)
+
+    assert campos == [""] * 6 + [[], "", "", [], 0, ""]
+
+
+def test_opciones_cancelables_sin_usuario(vista):
+    assert vista.opciones_cancelables(None) == []
+
+
+def test_primera_evaluable_sin_usuario(vista):
+    assert vista.primera_evaluable(None) is None
+
+
+def test_nombre_restaurante_inexistente(vista):
+    assert vista._nombre_restaurante(-999) == "#-999"
+
+
+def test_tabla_transacciones_vacia(vista):
+    tabla = vista._tabla_transacciones([])
+
+    assert tabla.empty
+    assert list(tabla.columns) == [
+        "ID", "Fecha", "Restaurante", "Importe", "Estado", "Evaluada"
+    ]
+
 
 def fecha_hoy_mas(dias: int, base: date) -> str:
     return (base + timedelta(days=dias)).isoformat()
