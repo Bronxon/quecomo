@@ -109,7 +109,6 @@ def test_motivos_de_rechazo_en_lenguaje_de_interfaz(vista):
     assert not mostrar and "fue cancelado" in mensaje
     mensaje, _ = vista.solicitar_evaluacion(1, None)
     assert "Registra tu visita" in mensaje
-```python
 
 def test_bienvenida_usuario_inexistente(vista):
     assert vista.bienvenida(None) == "Selecciona un usuario de demostración."
