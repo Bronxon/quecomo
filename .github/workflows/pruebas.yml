@@ -1,0 +1,41 @@
+
+name: Pruebas automatizadas - QueComo
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    name: PyTest y cobertura
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Instalar proyecto y herramientas de prueba
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Ejecutar pruebas y medir cobertura
+        run: |
+          python -m pytest \
+            --cov=quecomo \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            --cov-fail-under=80
