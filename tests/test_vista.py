@@ -153,3 +153,22 @@ def test_tabla_transacciones_vacia(vista):
     assert list(tabla.columns) == [
         "ID", "Fecha", "Restaurante", "Importe", "Estado", "Evaluada"
     ]
+
+def test_datos_rechaza_coordenadas_invalidas():
+    from quecomo.dominio.excepciones import DatosInvalidos
+
+    with pytest.raises(DatosInvalidos):
+        Vista._datos(
+            "Restaurante de prueba",
+            "Descripción",
+            "Mexicana",
+            "Dirección de prueba",
+            "Centro",
+            "coordenadas-invalidas",
+            ["Lunes"],
+            "09:00",
+            "18:00",
+            ["Efectivo"],
+            150,
+            "2025-01-01",
+        )
