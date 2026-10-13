@@ -158,6 +158,7 @@ class Vista:
             momento += timedelta(days=1)
         return momento
 
+    
     def buscar(
         self,
         texto: str,
@@ -172,27 +173,70 @@ class Vista:
         orden: str,
     ) -> tuple[pd.DataFrame, str]:
         referencia = self.app.punto(punto)
-        criterios = CriteriosBusqueda(
-            texto=texto or "",
-            categoria=None if categoria in (None, TODAS) else categoria,
-            precio_maximo=float(precio_maximo) if precio_maximo else None,
-            punto=referencia,
-            distancia_maxima_km=float(distancia_maxima) if referencia and distancia_maxima else None,
-            abierto_en=self._momento(horario),
-            forma_pago=None if forma_pago in (None, TODAS) else forma_pago,
-            calificacion_minima=float(calificacion_minima) if calificacion_minima else None,
-            solo_con_promocion=bool(solo_promocion),
-            orden=Orden(orden) if orden else Orden.RANKING,
+        criterios = self._crear_criterios_busqueda(
+            texto,
+            categoria,
+            precio_maximo,
+            referencia,
+            distancia_maxima,
+            horario,
+            forma_pago,
+            calificacion_minima,
+            solo_promocion,
+            orden,
         )
         resultados = self.app.busqueda.buscar(criterios)
         tabla = pd.DataFrame(
             [self._fila_resultado(r) for r in resultados],
-            columns=["ID", "Restaurante", "Tipo", "Precio prom.", "km", "Calificación", "Eval.", "Abierto", "Promo"],
+            columns=[
+                "ID",
+                "Restaurante",
+                "Tipo",
+                "Precio prom.",
+                "km",
+                "Calificación",
+                "Eval.",
+                "Abierto",
+                "Promo",
+            ],
         )
         if not resultados:
             return tabla, "No hay restaurantes que cumplan todos los criterios. Prueba a relajar algún filtro."
         sufijo = "" if referencia else " Elige un punto de referencia para ver distancias."
         return tabla, f"**{len(resultados)}** restaurante(s) encontrado(s).{sufijo}"
+
+    def _crear_criterios_busqueda(
+        self,
+        texto: str,
+        categoria: str,
+        precio_maximo: float,
+        referencia: Any,
+        distancia_maxima: float,
+        horario: str,
+        forma_pago: str,
+        calificacion_minima: float,
+        solo_promocion: bool,
+        orden: str,
+    ) -> CriteriosBusqueda:
+        return CriteriosBusqueda(
+            texto=texto or "",
+            categoria=None if categoria in (None, TODAS) else categoria,
+            precio_maximo=float(precio_maximo) if precio_maximo else None,
+            punto=referencia,
+            distancia_maxima_km=(
+                float(distancia_maxima)
+                if referencia and distancia_maxima
+                else None
+            ),
+            abierto_en=self._momento(horario),
+            forma_pago=None if forma_pago in (None, TODAS) else forma_pago,
+            calificacion_minima=(
+                float(calificacion_minima) if calificacion_minima else None
+            ),
+            solo_con_promocion=bool(solo_promocion),
+            orden=Orden(orden) if orden else Orden.RANKING,
+        )
+
 
     @staticmethod
     def _fila_resultado(r: ResultadoBusqueda) -> list[Any]:
