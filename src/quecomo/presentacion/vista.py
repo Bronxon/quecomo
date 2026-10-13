@@ -212,7 +212,7 @@ class Vista:
     # Ficha del restaurante (HU-03, HU-05)
     # ------------------------------------------------------------------ #
 
-    @capturar_errores(pd.DataFrame())
+    
    
     def ficha(self, restaurante_id: Any, punto: str) -> tuple[str, pd.DataFrame]:
         rid = _id(restaurante_id)
