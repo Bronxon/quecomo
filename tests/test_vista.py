@@ -172,3 +172,12 @@ def test_datos_rechaza_coordenadas_invalidas():
             150,
             "2025-01-01",
         )
+
+def test_cambiar_estado_restaurante(vista):
+    mensaje = vista.cambiar_estado_restaurante(7, 1, False)
+    assert mensaje.startswith("✅")
+    assert "SUSPENDIDO" in mensaje
+
+    mensaje = vista.cambiar_estado_restaurante(7, 1, True)
+    assert mensaje.startswith("✅")
+    assert "ACTIVO" in mensaje
