@@ -234,7 +234,7 @@ class Vista:
         )
         return "\n".join(lineas), menu
 
-        def _lineas_basicas_ficha(self, info: Any, punto: str) -> list[str]:
+    def _lineas_basicas_ficha(self, info: Any, punto: str) -> list[str]:
         r = info.restaurante
         return [
             f"## {r.nombre}",
