@@ -138,18 +138,50 @@ class ServicioBusqueda:
             antiguedad_anios=restaurante.antiguedad_anios(momento.date()),
         )
 
+    
+   
     @staticmethod
     def _cumple(resultado: ResultadoBusqueda, c: CriteriosBusqueda) -> bool:
         r = resultado.restaurante
-        if c.texto:
-            buscado = _normalizar(c.texto.strip())
-            campos = [r.nombre, r.descripcion, r.categoria, *(p.nombre for p in r.productos())]
-            if not any(buscado in _normalizar(campo) for campo in campos):
-                return False
-        if c.categoria and r.categoria != c.categoria:
+        return (
+            ServicioBusqueda._cumple_texto(r, c.texto)
+            and ServicioBusqueda._cumple_categoria_precio(r, c)
+            and ServicioBusqueda._cumple_distancia_horario(resultado, c)
+            and ServicioBusqueda._cumple_pago(r, c)
+            and ServicioBusqueda._cumple_calificacion_promocion(resultado, c)
+        )
+
+    @staticmethod
+    def _cumple_texto(restaurante, texto: str | None) -> bool:
+        if not texto:
+            return True
+
+        buscado = _normalizar(texto.strip())
+        campos = [
+            restaurante.nombre,
+            restaurante.descripcion,
+            restaurante.categoria,
+            *(p.nombre for p in restaurante.productos()),
+        ]
+        return any(buscado in _normalizar(campo) for campo in campos)
+
+    @staticmethod
+    def _cumple_categoria_precio(
+        restaurante, c: CriteriosBusqueda
+    ) -> bool:
+        if c.categoria and restaurante.categoria != c.categoria:
             return False
-        if c.precio_maximo is not None and r.precio_promedio > Decimal(str(c.precio_maximo)):
+        if (
+            c.precio_maximo is not None
+            and restaurante.precio_promedio > Decimal(str(c.precio_maximo))
+        ):
             return False
+        return True
+
+    @staticmethod
+    def _cumple_distancia_horario(
+        resultado: ResultadoBusqueda, c: CriteriosBusqueda
+    ) -> bool:
         if (
             c.distancia_maxima_km is not None
             and resultado.distancia_km is not None
@@ -158,8 +190,16 @@ class ServicioBusqueda:
             return False
         if c.abierto_en is not None and not resultado.abierto:
             return False
-        if c.forma_pago and not r.acepta_pago(c.forma_pago):
-            return False
+        return True
+
+    @staticmethod
+    def _cumple_pago(restaurante, c: CriteriosBusqueda) -> bool:
+        return not c.forma_pago or restaurante.acepta_pago(c.forma_pago)
+
+    @staticmethod
+    def _cumple_calificacion_promocion(
+        resultado: ResultadoBusqueda, c: CriteriosBusqueda
+    ) -> bool:
         if c.calificacion_minima:
             promedio = resultado.ranking.promedio
             if promedio is None or promedio < c.calificacion_minima:
@@ -167,6 +207,7 @@ class ServicioBusqueda:
         if c.solo_con_promocion and resultado.promociones_vigentes == 0:
             return False
         return True
+
 
     @staticmethod
     def _ordenar(resultados: list[ResultadoBusqueda], orden: Orden) -> list[ResultadoBusqueda]:
