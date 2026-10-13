@@ -190,4 +190,21 @@ def test_moderar_evaluacion_oculta_y_restaurar(vista):
     )
     assert mensaje.startswith("✅")
     assert "restaurada" in mensaje
+    
+def test_agregar_producto_desde_vista(vista):
+    productos_antes = vista.app.restaurantes.obtener(1).productos()
+    cantidad_antes = len(productos_antes)
+
+    mensaje = vista.agregar_producto(
+        4, 1, "Taco de prueba", 45, "Taco para pruebas automatizadas"
+    )
+
+    assert mensaje.startswith("✅")
+    assert "Taco de prueba" in mensaje
+    assert "$45.00" in mensaje
+
+    productos_despues = vista.app.restaurantes.obtener(1).productos()
+    assert len(productos_despues) == cantidad_antes + 1
+    assert any(p.nombre == "Taco de prueba" for p in productos_despues)
+
 
