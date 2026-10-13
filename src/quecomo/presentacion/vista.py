@@ -344,6 +344,10 @@ class Vista:
     def comparar(self, restaurante_ids: list[Any], punto: str) -> tuple[str, pd.DataFrame]:
         ids = [i for i in (_id(v) for v in (restaurante_ids or [])) if i is not None]
         resultados = self.app.busqueda.comparar(ids, self.app.punto(punto))
+
+        if not resultados:
+            return "No hay restaurantes disponibles para comparar.", pd.DataFrame()
+
         criterios = self._criterios_comparacion(self.app.reloj().date())
         filas = self._filas_comparacion(criterios, resultados)
         tabla = pd.DataFrame(
