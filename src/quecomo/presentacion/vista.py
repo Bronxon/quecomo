@@ -339,12 +339,32 @@ class Vista:
     # Comparar (HU-04)
     # ------------------------------------------------------------------ #
 
+    
     @capturar_errores(pd.DataFrame())
     def comparar(self, restaurante_ids: list[Any], punto: str) -> tuple[str, pd.DataFrame]:
         ids = [i for i in (_id(v) for v in (restaurante_ids or [])) if i is not None]
         resultados = self.app.busqueda.comparar(ids, self.app.punto(punto))
-        hoy = self.app.reloj().date()
-        criterios: dict[str, Callable[[ResultadoBusqueda], Any]] = {
+        criterios = self._criterios_comparacion(self.app.reloj().date())
+        filas = self._filas_comparacion(criterios, resultados)
+        tabla = pd.DataFrame(
+            filas,
+            columns=["Criterio", *(r.restaurante.nombre for r in resultados)],
+        )
+        mejor = min(
+            resultados,
+            key=lambda x: (x.ranking.promedio is None, -x.ranking.puntaje),
+        )
+        mensaje = (
+            f"Comparando {len(resultados)} restaurantes. "
+            f"Mejor calificado: **{mejor.restaurante.nombre}**."
+        )
+        return ok(mensaje), tabla
+
+    @staticmethod
+    def _criterios_comparacion(
+        hoy: date,
+    ) -> dict[str, Callable[[ResultadoBusqueda], Any]]:
+        return {
             "Tipo de comida": lambda x: x.restaurante.categoria,
             "Calificación": lambda x: f"{estrellas(x.ranking.promedio)} {x.ranking.texto()}",
             "Precio promedio": lambda x: dinero(x.restaurante.precio_promedio),
@@ -352,15 +372,24 @@ class Vista:
             "Horario": lambda x: x.restaurante.horario.describir(),
             "Abierto ahora": lambda x: "Sí" if x.abierto else "No",
             "Pago en el local": lambda x: ", ".join(sorted(x.restaurante.formas_pago)),
-            "Promociones vigentes": lambda x: "; ".join(p.descripcion for p in x.restaurante.promociones_vigentes(hoy)) or "—",
+            "Promociones vigentes": lambda x: "; ".join(
+                p.descripcion for p in x.restaurante.promociones_vigentes(hoy)
+            ) or "—",
             "Antigüedad (años)": lambda x: x.antiguedad_anios,
             "Productos en menú": lambda x: len(x.restaurante.productos()),
             "Zona": lambda x: x.restaurante.ubicacion.zona,
         }
-        filas = [[nombre, *(f(r) for r in resultados)] for nombre, f in criterios.items()]
-        tabla = pd.DataFrame(filas, columns=["Criterio", *(r.restaurante.nombre for r in resultados)])
-        mejor = min(resultados, key=lambda x: (x.ranking.promedio is None, -x.ranking.puntaje))
-        return ok(f"Comparando {len(resultados)} restaurantes. Mejor calificado: **{mejor.restaurante.nombre}**."), tabla
+
+    @staticmethod
+    def _filas_comparacion(
+        criterios: dict[str, Callable[[ResultadoBusqueda], Any]],
+        resultados: list[ResultadoBusqueda],
+    ) -> list[list[Any]]:
+        return [
+            [nombre, *(criterio(resultado) for resultado in resultados)]
+            for nombre, criterio in criterios.items()
+        ]
+
 
     # ------------------------------------------------------------------ #
     # Registro de consumos (HU-06) — dentro de la pestaña «Evaluar»
