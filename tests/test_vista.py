@@ -328,5 +328,13 @@ def test_fecha_hora_formatea_fecha_y_hora():
     valor = datetime(2026, 10, 14, 9, 5)
 
     assert fecha_hora(valor) == "14/10/2026 09:05"
+    
+def test_momento_horario_que_ya_paso_se_mueve_al_dia_siguiente(vista):
+    momento = vista._momento("00:01")
+
+    assert momento is not None
+    assert momento.date().isoformat() == "2026-10-11"
+    assert momento.hour == 0
+    assert momento.minute == 1
 
 
