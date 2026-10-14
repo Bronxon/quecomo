@@ -343,5 +343,21 @@ def test_id_devuelve_none_para_valores_no_convertibles(valor):
 
     assert _id(valor) is None
 
+def test_buscar_sin_resultados(vista):
+    tabla, resumen = vista.buscar(
+        "restaurante_que_no_existe_987",
+        TODAS,
+        0,
+        "Centro",
+        15,
+        HORARIO_AHORA,
+        TODAS,
+        0,
+        False,
+        "Mejor ranking",
+    )
+
+    assert tabla.empty
+    assert "No hay restaurantes que cumplan todos los criterios" in resumen
 
 
