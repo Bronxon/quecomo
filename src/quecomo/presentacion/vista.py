@@ -158,6 +158,7 @@ class Vista:
             momento += timedelta(days=1)
         return momento
 
+    
     def buscar(
         self,
         texto: str,
@@ -172,27 +173,70 @@ class Vista:
         orden: str,
     ) -> tuple[pd.DataFrame, str]:
         referencia = self.app.punto(punto)
-        criterios = CriteriosBusqueda(
-            texto=texto or "",
-            categoria=None if categoria in (None, TODAS) else categoria,
-            precio_maximo=float(precio_maximo) if precio_maximo else None,
-            punto=referencia,
-            distancia_maxima_km=float(distancia_maxima) if referencia and distancia_maxima else None,
-            abierto_en=self._momento(horario),
-            forma_pago=None if forma_pago in (None, TODAS) else forma_pago,
-            calificacion_minima=float(calificacion_minima) if calificacion_minima else None,
-            solo_con_promocion=bool(solo_promocion),
-            orden=Orden(orden) if orden else Orden.RANKING,
+        criterios = self._crear_criterios_busqueda(
+            texto,
+            categoria,
+            precio_maximo,
+            referencia,
+            distancia_maxima,
+            horario,
+            forma_pago,
+            calificacion_minima,
+            solo_promocion,
+            orden,
         )
         resultados = self.app.busqueda.buscar(criterios)
         tabla = pd.DataFrame(
             [self._fila_resultado(r) for r in resultados],
-            columns=["ID", "Restaurante", "Tipo", "Precio prom.", "km", "Calificación", "Eval.", "Abierto", "Promo"],
+            columns=[
+                "ID",
+                "Restaurante",
+                "Tipo",
+                "Precio prom.",
+                "km",
+                "Calificación",
+                "Eval.",
+                "Abierto",
+                "Promo",
+            ],
         )
         if not resultados:
             return tabla, "No hay restaurantes que cumplan todos los criterios. Prueba a relajar algún filtro."
         sufijo = "" if referencia else " Elige un punto de referencia para ver distancias."
         return tabla, f"**{len(resultados)}** restaurante(s) encontrado(s).{sufijo}"
+
+    def _crear_criterios_busqueda(
+        self,
+        texto: str,
+        categoria: str,
+        precio_maximo: float,
+        referencia: Any,
+        distancia_maxima: float,
+        horario: str,
+        forma_pago: str,
+        calificacion_minima: float,
+        solo_promocion: bool,
+        orden: str,
+    ) -> CriteriosBusqueda:
+        return CriteriosBusqueda(
+            texto=texto or "",
+            categoria=None if categoria in (None, TODAS) else categoria,
+            precio_maximo=float(precio_maximo) if precio_maximo else None,
+            punto=referencia,
+            distancia_maxima_km=(
+                float(distancia_maxima)
+                if referencia and distancia_maxima
+                else None
+            ),
+            abierto_en=self._momento(horario),
+            forma_pago=None if forma_pago in (None, TODAS) else forma_pago,
+            calificacion_minima=(
+                float(calificacion_minima) if calificacion_minima else None
+            ),
+            solo_con_promocion=bool(solo_promocion),
+            orden=Orden(orden) if orden else Orden.RANKING,
+        )
+
 
     @staticmethod
     def _fila_resultado(r: ResultadoBusqueda) -> list[Any]:
@@ -212,14 +256,31 @@ class Vista:
     # Ficha del restaurante (HU-03, HU-05)
     # ------------------------------------------------------------------ #
 
-    @capturar_errores(pd.DataFrame())
+    
+   
     def ficha(self, restaurante_id: Any, punto: str) -> tuple[str, pd.DataFrame]:
         rid = _id(restaurante_id)
         if rid is None:
             return "Selecciona un restaurante para ver su información.", pd.DataFrame()
+
         info = self.app.busqueda.detalle(rid, self.app.punto(punto))
-        r, hoy = info.restaurante, self.app.reloj().date()
-        lineas = [
+        r = info.restaurante
+        hoy = self.app.reloj().date()
+
+        lineas = self._lineas_basicas_ficha(info, punto)
+        lineas.extend(self._lineas_promociones(r, hoy))
+        lineas.extend(self._lineas_distribucion(info.ranking))
+        lineas.extend(self._lineas_evaluaciones(r))
+
+        menu = pd.DataFrame(
+            [[p.nombre, p.descripcion, dinero(p.precio)] for p in r.productos()],
+            columns=["Producto", "Descripción", "Precio"],
+        )
+        return "\n".join(lineas), menu
+
+    def _lineas_basicas_ficha(self, info: Any, punto: str) -> list[str]:
+        r = info.restaurante
+        return [
             f"## {r.nombre}",
             f"*{r.categoria}* · {r.descripcion}",
             "",
@@ -232,22 +293,38 @@ class Vista:
             f"**Formas de pago en el local:** {', '.join(sorted(r.formas_pago))}  ",
             f"**Antigüedad:** {info.antiguedad_anios} año(s) (desde {r.fecha_apertura:%Y})",
         ]
-        promos = r.promociones_vigentes(hoy)
-        lineas += ["", "### 🏷️ Promociones vigentes"]
-        lineas += [f"- **{p.descripcion}** (hasta {p.fin:%d/%m/%Y}). {p.condiciones}" for p in promos] or ["- Sin promociones vigentes."]
 
-        lineas += ["", "### 📊 Distribución de calificaciones"]
-        total = info.ranking.total or 1
-        for n, cantidad in info.ranking.distribucion.items():
+    @staticmethod
+    def _lineas_promociones(restaurante: Any, hoy: Any) -> list[str]:
+        promos = restaurante.promociones_vigentes(hoy)
+        lineas = ["", "### 🏷️ Promociones vigentes"]
+        lineas.extend(
+            f"- **{p.descripcion}** (hasta {p.fin:%d/%m/%Y}). {p.condiciones}"
+            for p in promos
+        )
+        return lineas if promos else lineas + ["- Sin promociones vigentes."]
+
+    @staticmethod
+    def _lineas_distribucion(ranking: Any) -> list[str]:
+        lineas = ["", "### 📊 Distribución de calificaciones"]
+        total = ranking.total or 1
+        for n, cantidad in ranking.distribucion.items():
             barra = "█" * round(10 * cantidad / total)
             lineas.append(f"`{n}★ {barra:<10} {cantidad}`  ")
+        return lineas
 
-        lineas += ["", "### 💬 Evaluaciones verificadas"]
+    def _lineas_evaluaciones(self, restaurante: Any) -> list[str]:
+        lineas = ["", "### 💬 Evaluaciones verificadas"]
         evaluaciones = sorted(
-            self.app.evaluaciones.obtener_por_restaurante(r.id), key=lambda e: e.fecha, reverse=True
+            self.app.evaluaciones.obtener_por_restaurante(restaurante.id),
+            key=lambda e: e.fecha,
+            reverse=True,
         )
         if not evaluaciones:
-            lineas.append("Aún no hay evaluaciones. Solo quien completa un consumo aquí puede evaluar.")
+            return lineas + [
+                "Aún no hay evaluaciones. Solo quien completa un consumo aquí puede evaluar."
+            ]
+
         for e in evaluaciones:
             autor = self.app.usuarios.obtener(e.usuario_id)
             nombre = autor.nombre_publico() if autor else "Usuario"
@@ -256,22 +333,42 @@ class Vista:
                 f"  {e.comentario}  \n"
                 f"  <small>✔ Respaldada por el consumo #{e.transaccion_id}</small>"
             )
-        menu = pd.DataFrame(
-            [[p.nombre, p.descripcion, dinero(p.precio)] for p in r.productos()],
-            columns=["Producto", "Descripción", "Precio"],
-        )
-        return "\n".join(lineas), menu
+        return lineas
 
     # ------------------------------------------------------------------ #
     # Comparar (HU-04)
     # ------------------------------------------------------------------ #
 
+    
     @capturar_errores(pd.DataFrame())
     def comparar(self, restaurante_ids: list[Any], punto: str) -> tuple[str, pd.DataFrame]:
         ids = [i for i in (_id(v) for v in (restaurante_ids or [])) if i is not None]
         resultados = self.app.busqueda.comparar(ids, self.app.punto(punto))
-        hoy = self.app.reloj().date()
-        criterios: dict[str, Callable[[ResultadoBusqueda], Any]] = {
+
+        if not resultados:
+            return "No hay restaurantes disponibles para comparar.", pd.DataFrame()
+
+        criterios = self._criterios_comparacion(self.app.reloj().date())
+        filas = self._filas_comparacion(criterios, resultados)
+        tabla = pd.DataFrame(
+            filas,
+            columns=["Criterio", *(r.restaurante.nombre for r in resultados)],
+        )
+        mejor = min(
+            resultados,
+            key=lambda x: (x.ranking.promedio is None, -x.ranking.puntaje),
+        )
+        mensaje = (
+            f"Comparando {len(resultados)} restaurantes. "
+            f"Mejor calificado: **{mejor.restaurante.nombre}**."
+        )
+        return ok(mensaje), tabla
+
+    @staticmethod
+    def _criterios_comparacion(
+        hoy: date,
+    ) -> dict[str, Callable[[ResultadoBusqueda], Any]]:
+        return {
             "Tipo de comida": lambda x: x.restaurante.categoria,
             "Calificación": lambda x: f"{estrellas(x.ranking.promedio)} {x.ranking.texto()}",
             "Precio promedio": lambda x: dinero(x.restaurante.precio_promedio),
@@ -279,15 +376,24 @@ class Vista:
             "Horario": lambda x: x.restaurante.horario.describir(),
             "Abierto ahora": lambda x: "Sí" if x.abierto else "No",
             "Pago en el local": lambda x: ", ".join(sorted(x.restaurante.formas_pago)),
-            "Promociones vigentes": lambda x: "; ".join(p.descripcion for p in x.restaurante.promociones_vigentes(hoy)) or "—",
+            "Promociones vigentes": lambda x: "; ".join(
+                p.descripcion for p in x.restaurante.promociones_vigentes(hoy)
+            ) or "—",
             "Antigüedad (años)": lambda x: x.antiguedad_anios,
             "Productos en menú": lambda x: len(x.restaurante.productos()),
             "Zona": lambda x: x.restaurante.ubicacion.zona,
         }
-        filas = [[nombre, *(f(r) for r in resultados)] for nombre, f in criterios.items()]
-        tabla = pd.DataFrame(filas, columns=["Criterio", *(r.restaurante.nombre for r in resultados)])
-        mejor = min(resultados, key=lambda x: (x.ranking.promedio is None, -x.ranking.puntaje))
-        return ok(f"Comparando {len(resultados)} restaurantes. Mejor calificado: **{mejor.restaurante.nombre}**."), tabla
+
+    @staticmethod
+    def _filas_comparacion(
+        criterios: dict[str, Callable[[ResultadoBusqueda], Any]],
+        resultados: list[ResultadoBusqueda],
+    ) -> list[list[Any]]:
+        return [
+            [nombre, *(criterio(resultado) for resultado in resultados)]
+            for nombre, criterio in criterios.items()
+        ]
+
 
     # ------------------------------------------------------------------ #
     # Registro de consumos (HU-06) — dentro de la pestaña «Evaluar»
@@ -568,6 +674,53 @@ class Vista:
             return ok(f"Evaluación #{e.id} ocultada. Ya no cuenta para el ranking.")
         e = servicio.restaurar_evaluacion(_id(usuario_id), _id(evaluacion_id))
         return ok(f"Evaluación #{e.id} restaurada.")
+
+def test_bienvenida_usuario_inexistente(vista):
+    assert vista.bienvenida(None) == "Selecciona un usuario de demostración."
+
+
+def test_rol_usuario_inexistente(vista):
+    assert vista.rol_de(None) is None
+
+
+
+def test_momento_sin_horario(vista):
+    assert vista._momento(None) is None
+    assert vista._momento("") is None
+    assert vista._momento("Cualquier horario") is None
+
+def test_ficha_sin_restaurante_seleccionado(vista):
+    texto, menu = vista.ficha(None, "Centro")
+
+    assert texto == "Selecciona un restaurante para ver su información."
+    assert menu.empty
+
+
+def test_datos_formulario_restaurante_inexistente(vista):
+    campos = vista.datos_formulario(-999)
+
+    assert campos == [""] * 6 + [[], "", "", [], 0, ""]
+
+
+def test_opciones_cancelables_sin_usuario(vista):
+    assert vista.opciones_cancelables(None) == []
+
+
+def test_primera_evaluable_sin_usuario(vista):
+    assert vista.primera_evaluable(None) is None
+
+
+def test_nombre_restaurante_inexistente(vista):
+    assert vista._nombre_restaurante(-999) == "#-999"
+
+
+def test_tabla_transacciones_vacia(vista):
+    tabla = vista._tabla_transacciones([])
+
+    assert tabla.empty
+    assert list(tabla.columns) == [
+        "ID", "Fecha", "Restaurante", "Importe", "Estado", "Evaluada"
+    ]
 
 
 def fecha_hoy_mas(dias: int, base: date) -> str:
