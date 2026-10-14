@@ -1,5 +1,6 @@
 
-"""Adapter GoF: traduce registros JSON al modelo de dominio."""
+
+"""Adapter que convierte registros JSON al modelo de dominio."""
 
 from __future__ import annotations
 
@@ -7,18 +8,32 @@ import json
 from datetime import date, time
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 from ..dominio.entidades import Horario, Restaurante, Ubicacion
 from ..dominio.estados import EstadoRestaurante
 
 
 class ErrorFormatoRestaurantes(ValueError):
-    """El archivo JSON no cumple el formato esperado."""
+    """El archivo o registro no cumple el formato esperado."""
+
+
+class FuenteRestaurantes(Protocol):
+    """Contrato destino para fuentes de datos de restaurantes."""
+
+    def cargar(self) -> list[Restaurante]:
+        """Devuelve restaurantes en el modelo de dominio."""
+        ...
 
 
 class AdapterRestaurantesJSON:
-    """Adapta el formato externo JSON al modelo de ¿Qué Como?."""
+    """Adapta registros JSON al contrato FuenteRestaurantes."""
+
+    def __init__(self, ruta: str | Path) -> None:
+        self._ruta = Path(ruta)
+
+    def cargar(self) -> list[Restaurante]:
+        return self.cargar_archivo(self._ruta)
 
     @staticmethod
     def convertir(registro: dict[str, Any]) -> Restaurante:
@@ -57,7 +72,6 @@ class AdapterRestaurantesJSON:
 
     @classmethod
     def cargar_archivo(cls, ruta: str | Path) -> list[Restaurante]:
-        """Carga un arreglo JSON y adapta cada registro."""
         try:
             with Path(ruta).open(encoding="utf-8") as archivo:
                 registros = json.load(archivo)
