@@ -222,4 +222,16 @@ def test_agregar_promocion_desde_vista(vista):
     assert "14/10" in mensaje
     assert "31/10/2026" in mensaje
 
+def test_agregar_promocion_con_fechas_invertidas(vista):
+    mensaje = vista.agregar_promocion(
+        4,
+        1,
+        "Promoción inválida",
+        "2026-10-31",
+        "2026-10-14",
+        "Prueba de fechas invertidas",
+    )
+
+    assert mensaje.startswith("⛔")
+
 
