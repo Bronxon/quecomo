@@ -375,3 +375,15 @@ def test_lineas_evaluaciones_sin_evaluaciones(vista):
     )
     evaluaciones_originales = evaluaciones
 
+def test_comparar_cuando_busqueda_no_devuelve_resultados(vista, monkeypatch):
+    monkeypatch.setattr(
+        vista.app.busqueda,
+        "comparar",
+        lambda ids, punto: [],
+    )
+
+    mensaje, tabla = vista.comparar([1, 2], "Centro")
+
+    assert mensaje == "No hay restaurantes disponibles para comparar."
+    assert tabla.empty
+
