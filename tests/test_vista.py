@@ -360,4 +360,11 @@ def test_buscar_sin_resultados(vista):
     assert tabla.empty
     assert "No hay restaurantes que cumplan todos los criterios" in resumen
 
+def test_lineas_evaluaciones_sin_evaluaciones(vista):
+    restaurante = vista.app.restaurantes.obtener(1)
+
+    evaluaciones = vista.app.evaluaciones.obtener_por_restaurante(
+        restaurante.id
+    )
+    evaluaciones_originales = evaluaciones
 
