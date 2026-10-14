@@ -234,4 +234,52 @@ def test_agregar_promocion_con_fechas_invertidas(vista):
 
     assert mensaje.startswith("⛔")
 
+def test_agregar_promocion_sin_permisos(vista):
+    mensaje = vista.agregar_promocion(
+        1,
+        1,
+        "Promoción no autorizada",
+        "2026-10-14",
+        "2026-10-31",
+        "Prueba de permisos",
+    )
+
+    assert mensaje.startswith("⛔")
+
+
+def test_agregar_promocion_restaurante_inexistente(vista):
+    mensaje = vista.agregar_promocion(
+        4,
+        -999,
+        "Promoción sin restaurante",
+        "2026-10-14",
+        "2026-10-31",
+        "Prueba de restaurante inexistente",
+    )
+
+    assert mensaje.startswith("⛔")
+
+def test_agregar_producto_sin_permisos(vista):
+    mensaje = vista.agregar_producto(
+        1,
+        1,
+        "Producto no autorizado",
+        45,
+        "Prueba de permisos",
+    )
+
+    assert mensaje.startswith("⛔")
+
+
+def test_agregar_producto_restaurante_inexistente(vista):
+    mensaje = vista.agregar_producto(
+        4,
+        -999,
+        "Producto sin restaurante",
+        45,
+        "Prueba de restaurante inexistente",
+    )
+
+    assert mensaje.startswith("⛔")
+
 
