@@ -13,7 +13,6 @@ from quecomo.infraestructura.adapter_restaurantes_json import (
     ErrorFormatoRestaurantes,
 )
 
-
 FIXTURE = Path(__file__).parent / "fixtures" / "restaurantes_externos.json"
 
 
@@ -119,14 +118,14 @@ def test_rechaza_estado_desconocido():
     with pytest.raises(ErrorFormatoRestaurantes):
         AdapterRestaurantesJSON.convertir(registro)
 
-
 def test_carga_archivo_json():
-    restaurantes = AdapterRestaurantesJSON.cargar_archivo(FIXTURE)
+    fuente = AdapterRestaurantesJSON(FIXTURE)
+
+    restaurantes = fuente.cargar()
 
     assert len(restaurantes) == 1
     assert restaurantes[0].nombre == "Café Adaptador"
     assert restaurantes[0].precio_promedio == Decimal("125.50")
-
 
 def test_rechaza_json_que_no_es_una_lista(tmp_path):
     archivo = tmp_path / "restaurantes.json"
