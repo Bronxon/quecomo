@@ -3,9 +3,12 @@
 import gradio as gr
 import pytest
 
+from quecomo.dominio.excepciones import (
+    EvaluacionNoPermitida,
+    MotivoRechazo,
+)
 from quecomo.presentacion.interfaz import construir_interfaz
 from quecomo.presentacion.vista import HORARIO_AHORA, TODAS, Vista, estrellas
-
 
 @pytest.fixture
 def vista(app_demo):
@@ -410,4 +413,24 @@ def test_cancelar_transaccion_desde_vista(vista):
 
     assert mensaje.startswith("✅")
     assert "cancelado" in mensaje.lower()
+    
+    from quecomo.dominio.excepciones import (
+    EvaluacionNoPermitida,
+    MotivoRechazo,
+)
+
+def test_mensaje_rechazo_para_error_que_no_es_evaluacion(vista):
+    error = ValueError("Error de prueba")
+
+    assert vista._mensaje_rechazo(error, 1) == "Error de prueba"
+
+def test_mensaje_rechazo_para_transaccion_ajena(vista):
+    error = EvaluacionNoPermitida(
+        MotivoRechazo.TRANSACCION_AJENA,
+        "Mensaje interno de prueba",
+    )
+
+    mensaje = vista._mensaje_rechazo(error, 2)
+
+    assert mensaje == "Solo quien hizo el consumo puede evaluarlo."
 
