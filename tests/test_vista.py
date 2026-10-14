@@ -207,4 +207,19 @@ def test_agregar_producto_desde_vista(vista):
     assert len(productos_despues) == cantidad_antes + 1
     assert any(p.nombre == "Taco de prueba" for p in productos_despues)
 
+def test_agregar_promocion_desde_vista(vista):
+    mensaje = vista.agregar_promocion(
+        4,
+        1,
+        "Promoción de prueba",
+        "2026-10-14",
+        "2026-10-31",
+        "Válida durante las pruebas",
+    )
+
+    assert mensaje.startswith("✅")
+    assert "Promoción de prueba" in mensaje
+    assert "14/10" in mensaje
+    assert "31/10/2026" in mensaje
+
 
