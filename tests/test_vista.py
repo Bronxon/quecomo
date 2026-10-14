@@ -300,7 +300,8 @@ def test_comparar_ignora_ids_invalidos(vista):
 def test_comparar_con_ids_inexistentes(vista):
     mensaje, tabla = vista.comparar([-999, -998], "Centro")
 
-    assert mensaje == "No hay restaurantes disponibles para comparar."
+    assert mensaje.startswith("⛔")
+    assert "no existe" in mensaje
     assert tabla.empty
 
 def test_comparar_con_restaurantes_muestra_resultado(vista):
