@@ -1,0 +1,25 @@
+
+[
+  {
+    "id": 901,
+    "nombre": "Café Adaptador",
+    "descripcion": "Cafetería de prueba para validar la importación JSON",
+    "categoria": "Cafetería",
+    "ubicacion": {
+      "direccion": "Blvd. Ejemplo 100",
+      "latitud": 29.0729,
+      "longitud": -110.9559,
+      "zona": "Centro"
+    },
+    "horario": {
+      "dias": [0, 1, 2, 3, 4, 5],
+      "apertura": "08:00",
+      "cierre": "22:00"
+    },
+    "formas_pago": ["Efectivo", "Tarjeta"],
+    "precio_promedio": "125.50",
+    "fecha_apertura": "2024-03-15",
+    "locatario_id": 901,
+    "estado": "ACTIVO"
+  }
+]
