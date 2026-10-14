@@ -434,3 +434,31 @@ def test_mensaje_rechazo_para_transaccion_ajena(vista):
 
     assert mensaje == "Solo quien hizo el consumo puede evaluarlo."
 
+@pytest.mark.parametrize(
+    ("motivo", "esperado"),
+    [
+        (
+            MotivoRechazo.SIN_TRANSACCION,
+            "No hay un consumo que respalde la evaluación.",
+        ),
+        (
+            MotivoRechazo.TRANSACCION_CANCELADA,
+            "fue cancelado",
+        ),
+        (
+            MotivoRechazo.RESTAURANTE_NO_DISPONIBLE,
+            "no está disponible",
+        ),
+        (
+            MotivoRechazo.USUARIO_NO_HABILITADO,
+            "Inicia sesión con una cuenta activa",
+        ),
+    ],
+)
+def test_mensaje_rechazo_por_motivo(vista, motivo, esperado):
+    error = EvaluacionNoPermitida(motivo, "Error de prueba")
+
+    mensaje = vista._mensaje_rechazo(error, 2)
+
+    assert esperado in mensaje
+
