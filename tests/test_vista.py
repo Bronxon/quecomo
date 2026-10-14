@@ -306,4 +306,18 @@ def test_comparar_con_restaurantes_muestra_resultado(vista):
     assert not tabla.empty
     assert "Criterio" in tabla.columns
 
+def test_id_retorna_none_para_valores_vacios():
+    from quecomo.presentacion.vista import _id
+
+    assert _id(None) is None
+    assert _id("") is None
+    assert _id([]) is None
+
+
+def test_id_convierte_cadena_numerica():
+    from quecomo.presentacion.vista import _id
+
+    assert _id("123") == 123
+    assert _id(45) == 45
+
 
