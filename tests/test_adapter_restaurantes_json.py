@@ -34,7 +34,7 @@ def test_convertir_registro_json_a_restaurante():
             "apertura": "08:00",
             "cierre": "22:00",
         },
-        "formas_pago": ["Efectivo", "Tarjeta"],
+        "formas_pago": ["Efectivo", "Tarjeta de débito"],
         "precio_promedio": "125.50",
         "fecha_apertura": "2024-03-15",
         "locatario_id": 901,
