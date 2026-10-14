@@ -319,5 +319,14 @@ def test_id_convierte_cadena_numerica():
 
     assert _id("123") == 123
     assert _id(45) == 45
+    
+def test_fecha_hora_formatea_fecha_y_hora():
+    from datetime import datetime
+
+    from quecomo.presentacion.vista import fecha_hora
+
+    valor = datetime(2026, 10, 14, 9, 5)
+
+    assert fecha_hora(valor) == "14/10/2026 09:05"
 
 
