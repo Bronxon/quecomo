@@ -281,20 +281,21 @@ def test_agregar_producto_restaurante_inexistente(vista):
     )
 
     assert mensaje.startswith("⛔")
-
+    
 def test_comparar_sin_restaurantes_seleccionados(vista):
     mensaje, tabla = vista.comparar([], "Centro")
 
-    assert mensaje == "No hay restaurantes disponibles para comparar."
+    assert mensaje.startswith("⛔")
+    assert "Selecciona al menos dos restaurantes" in mensaje
     assert tabla.empty
 
 
 def test_comparar_ignora_ids_invalidos(vista):
     mensaje, tabla = vista.comparar([None, -999], "Centro")
 
-    assert mensaje == "No hay restaurantes disponibles para comparar."
+    assert mensaje.startswith("⛔")
+    assert "Selecciona al menos dos restaurantes" in mensaje
     assert tabla.empty
-
 
 def test_comparar_con_restaurantes_muestra_resultado(vista):
     mensaje, tabla = vista.comparar([1, 2], "Centro")
