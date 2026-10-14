@@ -402,3 +402,12 @@ def test_mis_transacciones_sin_usuario(vista):
 
     assert tabla.empty
 
+def test_opciones_para_evaluar_sin_usuario(vista):
+    assert vista.opciones_para_evaluar(None) == []
+
+def test_cancelar_transaccion_desde_vista(vista):
+    mensaje = vista.cancelar_transaccion(1, 6)
+
+    assert mensaje.startswith("✅")
+    assert "cancelado" in mensaje.lower()
+
