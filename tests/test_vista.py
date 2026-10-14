@@ -336,5 +336,12 @@ def test_momento_horario_que_ya_paso_se_mueve_al_dia_siguiente(vista):
     assert momento.date().isoformat() == "2026-10-11"
     assert momento.hour == 0
     assert momento.minute == 1
+  
+@pytest.mark.parametrize("valor", ["abc", "12.5", object()])
+def test_id_devuelve_none_para_valores_no_convertibles(valor):
+    from quecomo.presentacion.vista import _id
+
+    assert _id(valor) is None
+
 
 
