@@ -387,3 +387,18 @@ def test_comparar_cuando_busqueda_no_devuelve_resultados(vista, monkeypatch):
     assert mensaje == "No hay restaurantes disponibles para comparar."
     assert tabla.empty
 
+def test_tabla_transacciones_incluye_cliente(vista):
+    transacciones = vista.app.transacciones.listar_por_usuario(1)
+
+    tabla = vista._tabla_transacciones(transacciones, con_cliente=True)
+
+    assert "Cliente" in tabla.columns
+    if transacciones:
+        assert len(tabla) == len(transacciones)
+
+
+def test_mis_transacciones_sin_usuario(vista):
+    tabla = vista.mis_transacciones(None)
+
+    assert tabla.empty
+
