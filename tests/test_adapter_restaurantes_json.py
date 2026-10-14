@@ -54,7 +54,7 @@ def test_convertir_registro_json_a_restaurante():
         time(8, 0),
         time(22, 0),
     )
-    assert restaurante.formas_pago == frozenset({"Efectivo", "Tarjeta"})
+    assert restaurante.formas_pago == frozenset({"Efectivo", "Tarjeta de débito"})
     assert restaurante.precio_promedio == Decimal("125.50")
     assert restaurante.fecha_apertura == date(2024, 3, 15)
     assert restaurante.estado is EstadoRestaurante.ACTIVO
