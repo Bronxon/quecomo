@@ -222,6 +222,142 @@ def _restaurantes(hoy: date) -> list[Restaurante]:
                 ("Caldo de queso", 95, "Receta tradicional"),
             ),
         ),
+        Restaurante(
+            id=9,
+            nombre="Verde Raíz Kitchen",
+            descripcion="Comida 100% basada en plantas, bowls, hamburguesas veganas y smoothies.",
+            categoria="Vegetariana",
+            ubicacion=Ubicacion("Calle Hidalgo 45", 29.0720, -110.9570, "Centro"),
+            horario=h(frozenset({0, 1, 2, 3, 4, 5}), "09:00", "18:00"),
+            formas_pago=frozenset({EFECTIVO, TARJETA}),
+            precio_promedio=140,
+            fecha_apertura=date(2022, 1, 10),
+            locatario_id=5,
+            menus=_menu(
+                ("Bowl Nutritivo de Quinoa", 135, "Con garbanzos, aguacate y aderezo tahini"),
+                ("Hamburguesa de Lenteja y Garbanzo", 145, "Pan artesanal y camote frito"),
+                ("Smoothie Antiox Verde", 65, "Espinaca, piña y leche de almendras"),
+            )
+        ),
+        Restaurante(
+            id=10,
+            nombre="Café Urbano & Co.",
+            descripcion="Café de especialidad, repostería artesanal, paninis y desayunos.",
+            categoria="Cafeteria",
+            ubicacion=Ubicacion("Calle Rosales 12", 29.0760, -110.9590, "Centro"),
+            horario=h(frozenset({0, 1, 2, 3, 4, 5, 6}), "07:00", "21:00"),
+            formas_pago=frozenset({EFECTIVO, TARJETA}),
+            precio_promedio=110,
+            fecha_apertura=date(2020, 10, 1),
+            locatario_id=6,
+            menus=_menu(
+                ("Flat White de especialidad", 60, "Grano de Oaxaca tostado medio"),
+                ("Panini de Pavo y Queso Gouda", 115, "Pan foccacia hecho en casa"),
+                ("Cheesecake de frutos rojos", 75, "Porción individual artesanal"),
+            )
+        ),
+        Restaurante(
+            id=11,
+            nombre="Nikkei Sushi Roll",
+            descripcion="Rollos empanizados, horneados y naturales con toques de la región.",
+            categoria="Sushi",
+            ubicacion=Ubicacion("Blvd. Rodríguez 201", 29.0880, -110.9540, "Comercial"),
+            horario=h(frozenset({1, 2, 3, 4, 5, 6}), "13:00", "23:00"),
+            formas_pago=frozenset({EFECTIVO, TARJETA}),
+            precio_promedio=190,
+            fecha_apertura=date(2018, 5, 20),
+            locatario_id=4,
+            menus=_menu(
+                ("Guamúchil Roll horneado", 185, "Camarón, queso crema y aderezo especial"),
+                ("Cordon Bleu Roll empanizado", 175, "Pollo, tocino y queso asadero"),
+                ("Kushiages de queso (3 pzas)", 80, "Empanizadas con empanizador panko"),
+            )
+        ),
+        Restaurante(
+            id=12,
+            nombre="La Bella Pizza Napoletana",
+            descripcion="Pizzas artesanales al horno de leña con ingredientes importados.",
+            categoria="Pizzeria",
+            ubicacion=Ubicacion("Av. Serdán 55", 29.0730, -110.9560, "Centro"),
+            horario=h(frozenset({1, 2, 3, 4, 5, 6}), "14:00", "22:30"),
+            formas_pago=frozenset({EFECTIVO, TARJETA}),
+            precio_promedio=220,
+            fecha_apertura=date(2019, 7, 8),
+            locatario_id=5,
+            menus=_menu(
+                ("Pizza Margherita clásica", 190, "Salsa pomodoro, mozzarella y albahaca fresca"),
+                ("Pizza Pepperoni & Miel picante", 220, "Masa madre madurada 48 hrs"),
+                ("Ensalada César con pollo", 130, "Crutones horneados en casa"),
+            )
+        ),
+        Restaurante(
+            id=13,
+            nombre="La Finca Fonda Mexicana",
+            descripcion="Sabor tradicional mexicano, pozole, tamales y guisados del día.",
+            categoria="Comida mexicana",
+            ubicacion=Ubicacion("Av. Rosales 85", 29.0750, -110.9580, "Centro"),
+            horario=h(frozenset({0, 1, 2, 3, 4, 5}), "08:00", "17:00"),
+            formas_pago=frozenset({EFECTIVO, TARJETA}),
+            precio_promedio=120,
+            fecha_apertura=date(2012, 5, 15),
+            locatario_id=6,
+            menus=_menu(
+                ("Pozole rojo", 120, "Acompañado de tostadas y rábano"),
+                ("Tamales de elote (2)", 70, "Con crema y queso fresco"),
+                ("Plato arriero de guisado", 130, "Con frijoles refritos y tortillas"),
+            )
+        ),
+        Restaurante(
+            id=14,
+            nombre="La Barra del Marinero",
+            descripcion="Marisquería estilo barra costera, aguachiles y botanas frías.",
+            categoria="Mariscos",
+            ubicacion=Ubicacion("Blvd. Colosio 320", 29.0820, -110.9750, "Centenario"),
+            horario=h(frozenset({1, 2, 3, 4, 5, 6}), "12:00", "20:00"),
+            formas_pago=frozenset({EFECTIVO, TARJETA}),
+            precio_promedio=210,
+            fecha_apertura=date(2020, 8, 22),
+            locatario_id=4,
+            menus=_menu(
+                ("Aguachile verde de camarón", 210, "Con pepino y cebolla morada"),
+                ("Tostada marinera con pulpo", 120, "Salsa negra especial"),
+                ("Pescado frito entero", 230, "Acompañado de ensalada y arroz"),
+            )
+        ),
+        Restaurante(
+            id=15,
+            nombre="El Parral Asador",
+            descripcion="Asador tradicional estilo norteño con tortillas de harina sobadas.",
+            categoria="Carne asada",
+            ubicacion=Ubicacion("Blvd. Navarrete 510", 29.0850, -110.9820, "Valle Grande"),
+            horario=h(frozenset({1, 2, 3, 4, 5, 6}), "12:00", "22:30"),
+            formas_pago=frozenset({EFECTIVO, TARJETA}),
+            precio_promedio=290,
+            fecha_apertura=date(2017, 6, 18),
+            locatario_id=5,
+            menus=_menu(
+                ("Rib Eye a las brasas (400g)", 380, "Incluye chiles toreados"),
+                ("Parrillada de diezmillo", 310, "Con chivichangas y salsa molcajeteada"),
+                ("Papa loca asada con carne", 150, "Con bastante queso y mantequilla"),
+            )
+        ),
+        Restaurante(
+            id=16,
+            nombre="Taquería El Pastorcito",
+            descripcion="Tacos al pastor estilo CDMX, alambre, gringas y volcanes.",
+            categoria="Tacos",
+            ubicacion=Ubicacion("Blvd. Solidaridad 405", 29.0920, -110.9700, "Sahuaro"),
+            horario=h(frozenset({1, 2, 3, 4, 5, 6}), "17:30", "00:30"),
+            formas_pago=frozenset({EFECTIVO}),
+            precio_promedio=110,
+            fecha_apertura=date(2021, 2, 1),
+            locatario_id=4,
+            menus=_menu(
+                ("Orden de tacos al pastor (5)", 85, "Con piña, cilantro y cebolla"),
+                ("Gringa de pastor", 75, "Tortilla de harina con queso fundido"),
+                ("Alambre de res y tocino", 140, "Para 2 personas con tortillas"),
+            )
+        ),
     ]
 
 
@@ -242,7 +378,16 @@ _TRANSACCIONES: list[tuple[int, int, int, int, EstadoTransaccion, int | None, st
     (3, 6, 420, 11, EstadoTransaccion.COMPLETADA, 4, "Masa delgada y crujiente; buen ambiente familiar."),
     (3, 7, 310, 8, EstadoTransaccion.COMPLETADA, 5, "Opciones veganas creativas y porciones generosas."),
     (3, 8, 160, 7, EstadoTransaccion.COMPLETADA, 4, "Rico y económico, solo aceptan efectivo."),
-    (3, 1, 300, 1, EstadoTransaccion.PENDIENTE, None, None),
+    (3, 1, 300, 1, EstadoTransaccion.PENDIENTE, None, None),  
+    (1, 9, 290, 5, EstadoTransaccion.COMPLETADA, 5, "El bowl de quinoa estuvo excelente y muy fresco."),
+    (1, 11, 180, 3, EstadoTransaccion.COMPLETADA, None, None),  # Lista para evaluar en la demo
+    (1, 13, 210, 10, EstadoTransaccion.COMPLETADA, 4, "El pozole rojo tiene un sazón casero muy rico."),
+    (1, 15, 440, 2, EstadoTransaccion.CONFIRMADA, None, None),
+    (2, 10, 250, 12, EstadoTransaccion.COMPLETADA, 5, "La pita de falafel superó mis expectativas."),
+    (2, 12, 130, 8, EstadoTransaccion.COMPLETADA, 4, "El cold brew y el pan de masa madre van perfectos."),
+    (2, 14, 520, 1, EstadoTransaccion.PENDIENTE, None, None),
+    (3, 16, 380, 9, EstadoTransaccion.COMPLETADA, 4, "Las rebanadas gigantes y los bastones de ajo son ideales."),
+    (3, 13, 150, 4, EstadoTransaccion.CANCELADA, None, None),
 ]
 
 
